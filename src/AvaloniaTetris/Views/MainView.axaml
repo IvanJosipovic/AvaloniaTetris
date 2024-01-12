@@ -12,5 +12,11 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <StackPanel>
+    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Canvas Name="canvas" Height="200" Width="10">
+
+    </Canvas>
+    </StackPanel>
+
 </UserControl>
