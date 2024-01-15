@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Timers;
 
 namespace AvaloniaTetris;
@@ -18,34 +20,64 @@ internal partial class Game : ObservableObject
         {
             AddNewPiece();
         }
-        else if (!MovePieceDown())
+
+        if (CanMovePieceDown())
+        {
+            activePiece.MoveDown();
+        }
+        else
         {
             activePiece.IsActive = false;
-            activePiece = null;
+            AddNewPiece();
         }
     }
 
-    private bool MovePieceDown()
+    private bool CanMovePieceDown()
     {
-        if (activePiece.Y == 19)
+        // Piece has reached the end
+        if (activePiece.Y == 0)
         {
             return false;
         }
 
         // Check if there is a conflict
+        var coords = activePiece.GetUsedCoords(0,-1);
 
-        activePiece.Y++;
+        var existing = Pieces.Where(x => !x.IsActive).SelectMany(x => x.GetUsedCoords());
 
-        return true;
+        return !coords.Any(x => existing.Contains(x));
     }
 
-
+    Random randomPiece = new();
 
     private void AddNewPiece()
     {
         // Pick random Piece
-        activePiece = new Straight();
-        Pieces.Add(activePiece);
+        Piece? newPiece;
+        switch (randomPiece.Next(1, 6))
+        {
+            case 1:
+                newPiece = new Straight();
+                break;
+            case 2:
+                newPiece = new Square();
+                break;
+            case 3:
+                newPiece = new T();
+                break;
+            case 4:
+                newPiece = new L();
+                break;
+            case 5:
+                newPiece = new S();
+                break;
+            default:
+                throw new Exception();
+        }
+
+        newPiece.IsActive = true;
+        Pieces.Add(newPiece);
+        activePiece = newPiece;
     }
 
     public void Start()
@@ -65,6 +97,19 @@ internal partial class Game : ObservableObject
     private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
     {
         Loop();
+    }
+
+    public Piece? GetAtCoords(int x, int y)
+    {
+        foreach (var piece in Pieces.ToList())
+        {
+            if (piece.IsOnCoord(x, y))
+            {
+                return piece;
+            }
+        }
+
+        return null;
     }
 
     // Game Controls

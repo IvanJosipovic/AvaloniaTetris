@@ -1,6 +1,4 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.Threading;
 using System;
@@ -14,7 +12,7 @@ public partial class MainViewModel : ViewModelBase
 
     private readonly DispatcherTimer timer = new()
     {
-        Interval = TimeSpan.FromMicroseconds(500)
+        Interval = TimeSpan.FromMicroseconds(100)
     };
 
     Game game;
@@ -34,18 +32,44 @@ public partial class MainViewModel : ViewModelBase
 
     private void Timer_Tick(object? sender, EventArgs e)
     {
-        //RenderControls();
-
-        for (int y = 0; y < 20; y++)
+        int count = 0;
+        for (int y = 19; y >= 0; y--)
         {
             for (int x = 0; x < 10; x++)
             {
+                var control = Controls[count++];
 
+                var piece = game.GetAtCoords(x, y);
+
+                if (piece == null)
+                {
+                    ((TextBlock)control).Background = Brushes.Black;
+                } else
+                {
+                    if (piece is Straight)
+                    {
+                        ((TextBlock)control).Background = Brushes.Red;
+                    }
+                    else if (piece is Square)
+                    {
+                        ((TextBlock)control).Background = Brushes.Blue;
+                    }
+                    else if (piece is S)
+                    {
+                        ((TextBlock)control).Background = Brushes.Green;
+                    }
+                    else if (piece is T)
+                    {
+                        ((TextBlock)control).Background = Brushes.Pink;
+                    }
+                    else if (piece is L)
+                    {
+                        ((TextBlock)control).Background = Brushes.Purple;
+                    }
+                }
             }
         }
     }
-
-    public string Greeting => "Welcome to Avalonia Tetris!";
 
     private void GenerateControls()
     {
@@ -57,10 +81,10 @@ public partial class MainViewModel : ViewModelBase
             {
                 TextBlock txt = new()
                 {
-                    Background = Brushes.Red,
+                    Background = Brushes.Black,
                     Text = $"{x},{y}",
                     Width = 50,
-                    Height = 50
+                    Height = 50,
                 };
 
                 Controls.Add(txt);

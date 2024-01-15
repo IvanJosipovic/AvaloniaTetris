@@ -30,13 +30,54 @@ internal abstract partial class Piece : ObservableObject
 
     public bool IsOnCoord(int x, int y)
     {
-        // Y is beyond our Piece
-        if (y > Y)
+        return GetUsedCoords().Contains($"{x},{y}");
+    }
+
+    public HashSet<string> GetUsedCoords(int xOffset = 0, int yOffset = 0)
+    {
+        HashSet<string> coords = [];
+
+        int rows = Size.GetLength(0);
+        int columns = Size.GetLength(1);
+
+        for (int x = 0; x < rows; x++)
         {
-            return false;
+            for (int y = 0; y < columns; y++)
+            {
+                int currentValue = Size[x, y];
+
+                if (currentValue == 1)
+                {
+                    coords.Add($"{X + y + xOffset},{Y + x + yOffset}");
+                }
+            }
         }
 
-        return false;
+        return coords;
+    }
+
+    public void MoveDown()
+    {
+        if (IsActive)
+        {
+            Y--;
+        }
+    }
+
+    public void MoveLeft()
+    {
+        if (IsActive)
+        {
+            X--;
+        }
+    }
+
+    public void MoveRight()
+    {
+        if (IsActive)
+        {
+            X++;
+        }
     }
 }
 
@@ -47,7 +88,7 @@ internal class Straight : Piece
         Color = Brushes.Red;
         Size = new int[,] { { 1, 1, 1, 1 } };
         X = 3;
-        Y = 0;
+        Y = 20;
     }
 }
 
@@ -59,7 +100,7 @@ internal class Square : Piece
         Size = new int[,] { { 1, 1 },
                             { 1, 1 }};
         X = 4;
-        Y = 0;
+        Y = 21;
     }
 }
 
@@ -71,7 +112,7 @@ internal class T : Piece
         Size = new int[,] { { 1, 1, 1 },
                             { 0, 1, 0 }};
         X = 3;
-        Y = 0;
+        Y = 21;
     }
 }
 
@@ -83,7 +124,7 @@ internal class L : Piece
         Size = new int[,] { { 1, 1, 1 },
                             { 0, 0, 1 }};
         X = 4;
-        Y = 0;
+        Y = 21;
     }
 }
 
@@ -95,6 +136,6 @@ internal class S : Piece
         Size = new int[,] { { 1, 1, 0 },
                             { 0, 1, 1 }};
         X = 4;
-        Y = 0;
+        Y = 21;
     }
 }
