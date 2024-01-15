@@ -136,4 +136,10 @@ public partial class MainViewModel : ViewModelBase
     {
         Game.MoveDown();
     }
+
+    [RelayCommand]
+    private void Rotate()
+    {
+        Game.Rotate();
+    }
 }

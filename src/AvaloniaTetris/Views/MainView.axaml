@@ -34,6 +34,7 @@
 
             <StackPanel Orientation="Horizontal">
                 <Button Command="{Binding MoveLeftCommand}" HotKey="Left">&lt;</Button>
+                <Button Command="{Binding RotateCommand}" HotKey="Up">^</Button>
                 <Button Command="{Binding MoveDownCommand}" HotKey="Down">v</Button>
                 <Button Command="{Binding MoveRightCommand}" HotKey="Right">&gt;</Button>
             </StackPanel>

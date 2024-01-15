@@ -3,9 +3,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Timers;
 
 namespace AvaloniaTetris;
 
@@ -28,6 +26,11 @@ public partial class Game : ObservableObject
         }
 
         MoveDown();
+    }
+
+    private void Timer_Tick(object? sender, EventArgs e)
+    {
+        Loop();
     }
 
     private bool CanMovePieceDown()
@@ -78,11 +81,6 @@ public partial class Game : ObservableObject
         }
     }
 
-    private void Timer_Tick(object? sender, EventArgs e)
-    {
-        Loop();
-    }
-
     public Piece? GetAtCoords(int x, int y)
     {
         var pt = new Point(x, y);
@@ -103,39 +101,41 @@ public partial class Game : ObservableObject
 
     public void MoveLeft()
     {
-        if (activePiece?.X == 0)
+        var coords = activePiece?.GetUsedCoords(-1, 0);
+
+        // Check for out of bounds
+        if (coords.Any(point => point.X < 0))
         {
             return;
         }
 
-        var coords = activePiece?.GetUsedCoords(-1, 0);
-
+        // Check if peice has a conflict
         if (coords.Any(x => Points.ContainsKey(x)))
         {
             return;
         }
 
-        activePiece.X--;
+        activePiece.MoveLeft();
 
     }
 
     public void MoveRight()
     {
-        var coords = activePiece?.GetUsedCoords();
+        var coords = activePiece?.GetUsedCoords(1,0);
 
-        if (coords.Any(point => point.X == 9))
+        // Check for out of bounds
+        if (coords.Any(point => point.X > 9))
         {
             return;
         }
 
-        coords = activePiece?.GetUsedCoords(1, 0);
-
+        // Check if piece has a conflict
         if (coords.Any(x => Points.ContainsKey(x)))
         {
             return;
         }
 
-        activePiece.X++;
+        activePiece.MoveRight();
     }
 
     public void MoveDown()
@@ -147,22 +147,55 @@ public partial class Game : ObservableObject
         else
         {
             activePiece.IsActive = false;
+
             foreach (var point in activePiece.GetUsedCoords())
             {
                 Points.Add(point, activePiece);
             }
+
+            // Check if piece failed to go to first row
+            // Means end game
             if (activePiece.Y > 19)
             {
-                IsActive = false;
                 timer?.Stop();
                 return;
             }
+
             AddNewPiece();
         }
     }
 
     public void Rotate() {
-        // check if there is a conflict
+        var coords = activePiece?.GetUsedCoords(0, 0, true);
+
+        // Check for out of bounds
+        if (coords.Any(point => point.X < 0))
+        {
+            return;
+        }
+
+        if (coords.Any(point => point.X > 9))
+        {
+            return;
+        }
+
+        if (coords.Any(point => point.Y > 19))
+        {
+            return;
+        }
+
+        if (coords.Any(point => point.Y < 0))
+        {
+            return;
+        }
+
+        // Check if piece has a conflict
+        if (coords.Any(x => Points.ContainsKey(x)))
+        {
+            return;
+        }
+
+        activePiece.Rotate();
     }
 
     public void Pause()

@@ -16,9 +16,6 @@ public abstract partial class Piece : ObservableObject
     int[,] _size;
 
     [ObservableProperty]
-    int _orientation;
-
-    [ObservableProperty]
     IBrush _color;
 
     [ObservableProperty]
@@ -33,18 +30,25 @@ public abstract partial class Piece : ObservableObject
         return GetUsedCoords().Any(p => p == point);
     }
 
-    public List<Point> GetUsedCoords(double xOffset = 0, double yOffset = 0)
+    public List<Point> GetUsedCoords(double xOffset = 0, double yOffset = 0, bool rotate = false)
     {
         List<Point> coords = [];
 
-        int rows = Size.GetLength(0);
-        int columns = Size.GetLength(1);
+        var localSize = Size;
+
+        if (rotate)
+        {
+            localSize = RotateMatrixCounterClockwise(Size);
+        }
+
+        int rows = localSize.GetLength(0);
+        int columns = localSize.GetLength(1);
 
         for (int x = 0; x < rows; x++)
         {
             for (int y = 0; y < columns; y++)
             {
-                int currentValue = Size[x, y];
+                int currentValue = localSize[x, y];
 
                 if (currentValue == 1)
                 {
@@ -54,6 +58,23 @@ public abstract partial class Piece : ObservableObject
         }
 
         return coords;
+    }
+
+    static int[,] RotateMatrixCounterClockwise(int[,] oldMatrix)
+    {
+        int[,] newMatrix = new int[oldMatrix.GetLength(1), oldMatrix.GetLength(0)];
+        int newColumn, newRow = 0;
+        for (int oldColumn = oldMatrix.GetLength(1) - 1; oldColumn >= 0; oldColumn--)
+        {
+            newColumn = 0;
+            for (int oldRow = 0; oldRow < oldMatrix.GetLength(0); oldRow++)
+            {
+                newMatrix[newRow, newColumn] = oldMatrix[oldRow, oldColumn];
+                newColumn++;
+            }
+            newRow++;
+        }
+        return newMatrix;
     }
 
     public void MoveDown()
@@ -77,6 +98,14 @@ public abstract partial class Piece : ObservableObject
         if (IsActive)
         {
             X++;
+        }
+    }
+
+    public void Rotate()
+    {
+        if (IsActive)
+        {
+            Size = RotateMatrixCounterClockwise(Size);
         }
     }
 }
