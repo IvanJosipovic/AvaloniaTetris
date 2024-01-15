@@ -1,6 +1,8 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Timers;
@@ -9,12 +11,12 @@ namespace AvaloniaTetris;
 
 public partial class Game : ObservableObject
 {
+    private Dictionary<Point, Piece> Points { get; set; } = [];
+
     [ObservableProperty]
     private bool _isActive = true;
 
     private DispatcherTimer? timer;
-
-    private readonly ObservableCollection<Piece> Pieces = [];
 
     private Piece? activePiece;
 
@@ -25,37 +27,22 @@ public partial class Game : ObservableObject
             AddNewPiece();
         }
 
-        if (CanMovePieceDown())
-        {
-            activePiece.MoveDown();
-        }
-        else
-        {
-            activePiece.IsActive = false;
-            if (activePiece.Y > 19)
-            {
-                IsActive = false;
-                timer?.Stop();
-                return;
-            }
-            AddNewPiece();
-        }
+        MoveDown();
     }
 
     private bool CanMovePieceDown()
     {
+        // Get coords for one row down
+        var coords = activePiece.GetUsedCoords(0,-1);
+
         // Piece has reached the end
-        if (activePiece.Y == 0)
+        if (coords.Any(p => p.Y < 0))
         {
             return false;
         }
 
         // Check if there is a conflict
-        var coords = activePiece.GetUsedCoords(0,-1);
-
-        var existing = Pieces.Where(x => !x.IsActive).SelectMany(x => x.GetUsedCoords());
-
-        return !coords.Any(x => existing.Contains(x));
+        return !coords.Any(Points.ContainsKey);
     }
 
     readonly Random randomPiece = new();
@@ -63,30 +50,16 @@ public partial class Game : ObservableObject
     private void AddNewPiece()
     {
         // Pick random Piece
-        Piece? newPiece;
-        switch (randomPiece.Next(1, 6))
+        Piece? newPiece = randomPiece.Next(1, 6) switch
         {
-            case 1:
-                newPiece = new Straight();
-                break;
-            case 2:
-                newPiece = new Square();
-                break;
-            case 3:
-                newPiece = new T();
-                break;
-            case 4:
-                newPiece = new L();
-                break;
-            case 5:
-                newPiece = new S();
-                break;
-            default:
-                throw new Exception();
-        }
-
+            1 => new Straight(),
+            2 => new Square(),
+            3 => new T(),
+            4 => new L(),
+            5 => new S(),
+            _ => throw new Exception(),
+        };
         newPiece.IsActive = true;
-        Pieces.Add(newPiece);
         activePiece = newPiece;
     }
 
@@ -112,12 +85,15 @@ public partial class Game : ObservableObject
 
     public Piece? GetAtCoords(int x, int y)
     {
-        foreach (var piece in Pieces.ToList())
+        var pt = new Point(x, y);
+        if (Points.TryGetValue(pt, out var value))
         {
-            if (piece.IsOnCoord(x, y))
-            {
-                return piece;
-            }
+            return value;
+        }
+
+        if (activePiece?.GetUsedCoords().Contains(pt) == true)
+        {
+            return activePiece;
         }
 
         return null;
@@ -127,25 +103,63 @@ public partial class Game : ObservableObject
 
     public void MoveLeft()
     {
-        // check if there is a conflict
-
-        if (activePiece?.X > 0)
+        if (activePiece?.X == 0)
         {
-            activePiece.X--;
+            return;
         }
+
+        var coords = activePiece?.GetUsedCoords(-1, 0);
+
+        if (coords.Any(x => Points.ContainsKey(x)))
+        {
+            return;
+        }
+
+        activePiece.X--;
+
     }
 
     public void MoveRight()
     {
-        // check if there is a conflict
+        var coords = activePiece?.GetUsedCoords();
 
-        if (activePiece?.X < 9)
+        if (coords.Any(point => point.X == 9))
         {
-            activePiece.X++;
+            return;
         }
+
+        coords = activePiece?.GetUsedCoords(1, 0);
+
+        if (coords.Any(x => Points.ContainsKey(x)))
+        {
+            return;
+        }
+
+        activePiece.X++;
     }
 
-    public void MoveDown() { }
+    public void MoveDown()
+    {
+        if (CanMovePieceDown())
+        {
+            activePiece.MoveDown();
+        }
+        else
+        {
+            activePiece.IsActive = false;
+            foreach (var point in activePiece.GetUsedCoords())
+            {
+                Points.Add(point, activePiece);
+            }
+            if (activePiece.Y > 19)
+            {
+                IsActive = false;
+                timer?.Stop();
+                return;
+            }
+            AddNewPiece();
+        }
+    }
 
     public void Rotate() {
         // check if there is a conflict

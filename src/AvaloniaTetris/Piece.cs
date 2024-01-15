@@ -1,6 +1,9 @@
-﻿using Avalonia.Media;
+﻿using Avalonia;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AvaloniaTetris;
 
@@ -24,14 +27,15 @@ public abstract partial class Piece : ObservableObject
     [ObservableProperty]
     int _y;
 
-    public bool IsOnCoord(int x, int y)
+    public bool IsOnCoord(double x, double y)
     {
-        return GetUsedCoords().Contains($"{x},{y}");
+        var point = new Point(x, y);
+        return GetUsedCoords().Any(p => p == point);
     }
 
-    public HashSet<string> GetUsedCoords(int xOffset = 0, int yOffset = 0)
+    public List<Point> GetUsedCoords(double xOffset = 0, double yOffset = 0)
     {
-        HashSet<string> coords = [];
+        List<Point> coords = [];
 
         int rows = Size.GetLength(0);
         int columns = Size.GetLength(1);
@@ -44,7 +48,7 @@ public abstract partial class Piece : ObservableObject
 
                 if (currentValue == 1)
                 {
-                    coords.Add($"{X + y + xOffset},{Y + x + yOffset}");
+                    coords.Add(new Point(X + y + xOffset, Y + x + yOffset));
                 }
             }
         }

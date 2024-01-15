@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
 
@@ -43,34 +44,33 @@ public partial class MainViewModel : ViewModelBase
             for (int x = 0; x < 10; x++)
             {
                 var control = Controls[count++];
+                var border = ((Border)control);
 
                 var piece = Game.GetAtCoords(x, y);
 
-                var border = ((Border)control);
-
-                if (piece == null)
+                if (piece == null && border.Background != Brushes.Black)
                 {
                     border.Background = Brushes.Black;
                 }
                 else
                 {
-                    if (piece is Straight)
+                    if (piece is Straight && border.Background != Brushes.Red)
                     {
                         border.Background = Brushes.Red;
                     }
-                    else if (piece is Square)
+                    else if (piece is Square && border.Background != Brushes.Blue)
                     {
                         border.Background = Brushes.Blue;
                     }
-                    else if (piece is S)
+                    else if (piece is S && border.Background != Brushes.Green)
                     {
                         border.Background = Brushes.Green;
                     }
-                    else if (piece is T)
+                    else if (piece is T && border.Background != Brushes.Pink)
                     {
                         border.Background = Brushes.Pink;
                     }
-                    else if (piece is L)
+                    else if (piece is L && border.Background != Brushes.Purple)
                     {
                         border.Background = Brushes.Purple;
                     }
@@ -117,5 +117,23 @@ public partial class MainViewModel : ViewModelBase
                 Controls.Add(border);
             }
         }
+    }
+
+    [RelayCommand]
+    private void MoveLeft()
+    {
+        Game.MoveLeft();
+    }
+
+    [RelayCommand]
+    private void MoveRight()
+    {
+        Game.MoveRight();
+    }
+
+    [RelayCommand]
+    private void MoveDown()
+    {
+        Game.MoveDown();
     }
 }

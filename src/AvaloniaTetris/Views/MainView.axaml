@@ -27,11 +27,17 @@
             </ItemsControl.ItemsPanel>
         </ItemsControl>
 
-    <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
-        <TextBlock>Test2</TextBlock>
+        <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
+            <TextBlock>Test2</TextBlock>
 
-        <CheckBox IsChecked="{Binding IsDebug}" Content="Show Debug" />
-    </StackPanel>
+            <CheckBox IsChecked="{Binding IsDebug}" Content="Show Debug" />
+
+            <StackPanel Orientation="Horizontal">
+                <Button Command="{Binding MoveLeftCommand}" HotKey="Left">&lt;</Button>
+                <Button Command="{Binding MoveDownCommand}" HotKey="Down">v</Button>
+                <Button Command="{Binding MoveRightCommand}" HotKey="Right">&gt;</Button>
+            </StackPanel>
+        </StackPanel>
 
     </Grid>
 
