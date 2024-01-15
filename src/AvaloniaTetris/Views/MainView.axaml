@@ -27,6 +27,8 @@
 
     <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
         <TextBlock>Test2</TextBlock>
+
+		<CheckBox IsChecked="{Binding IsDebug}" Content="Show Debug" />
     </StackPanel>
 
     </Grid>

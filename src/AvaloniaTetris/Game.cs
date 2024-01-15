@@ -8,9 +8,12 @@ namespace AvaloniaTetris;
 
 internal partial class Game : ObservableObject
 {
+    [ObservableProperty]
+    private bool _isActive;
+
     private Timer? timer;
 
-    public readonly ObservableCollection<Piece> Pieces = [];
+    private readonly ObservableCollection<Piece> Pieces = [];
 
     private Piece? activePiece;
 
@@ -80,6 +83,14 @@ internal partial class Game : ObservableObject
         activePiece = newPiece;
     }
 
+
+    private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
+    {
+        Loop();
+    }
+
+    // Public
+
     public void Start()
     {
         if (timer == null)
@@ -92,11 +103,6 @@ internal partial class Game : ObservableObject
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }
-    }
-
-    private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
-    {
-        Loop();
     }
 
     public Piece? GetAtCoords(int x, int y)

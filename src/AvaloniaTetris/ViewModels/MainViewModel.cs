@@ -1,13 +1,18 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AvaloniaTetris.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+    [ObservableProperty]
+    bool _isDebug;
+
     public ObservableCollection<Control> Controls { get; set; } = [];
 
     private readonly DispatcherTimer timer = new()
@@ -41,31 +46,43 @@ public partial class MainViewModel : ViewModelBase
 
                 var piece = game.GetAtCoords(x, y);
 
+                var txtBlock = ((TextBlock)control);
+
                 if (piece == null)
                 {
-                    ((TextBlock)control).Background = Brushes.Black;
-                } else
+                    txtBlock.Background = Brushes.Black;
+                }
+                else
                 {
                     if (piece is Straight)
                     {
-                        ((TextBlock)control).Background = Brushes.Red;
+                        txtBlock.Background = Brushes.Red;
                     }
                     else if (piece is Square)
                     {
-                        ((TextBlock)control).Background = Brushes.Blue;
+                        txtBlock.Background = Brushes.Blue;
                     }
                     else if (piece is S)
                     {
-                        ((TextBlock)control).Background = Brushes.Green;
+                        txtBlock.Background = Brushes.Green;
                     }
                     else if (piece is T)
                     {
-                        ((TextBlock)control).Background = Brushes.Pink;
+                        txtBlock.Background = Brushes.Pink;
                     }
                     else if (piece is L)
                     {
-                        ((TextBlock)control).Background = Brushes.Purple;
+                        txtBlock.Background = Brushes.Purple;
                     }
+                }
+
+                if (IsDebug)
+                {
+                    txtBlock.Text = $"{x},{y}";
+                }
+                else
+                {
+                    txtBlock.Text = "";
                 }
             }
         }
@@ -82,10 +99,14 @@ public partial class MainViewModel : ViewModelBase
                 TextBlock txt = new()
                 {
                     Background = Brushes.Black,
-                    Text = $"{x},{y}",
                     Width = 50,
                     Height = 50,
                 };
+
+                if (IsDebug)
+                {
+                    txt.Text = $"{x},{y}";
+                }
 
                 Controls.Add(txt);
             }
