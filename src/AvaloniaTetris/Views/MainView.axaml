@@ -12,11 +12,26 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-    <StackPanel>
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    <Canvas Name="canvas" Height="200" Width="10">
+    <Grid ColumnDefinitions="*,*,*">
+        <StackPanel Grid.Row="0" Grid.Column="0" Width="200">
+            <TextBlock>Test</TextBlock>
+        </StackPanel>
+    <ItemsControl ItemsSource="{Binding Controls}" Grid.Row="0" Grid.Column="1">
+        <!-- ItemsPanelTemplate -->
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <!--<Grid  RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*,*" HorizontalAlignment="Left" Height="400" Width="200">
+                </Grid>-->
+                <UniformGrid  Rows="20" Columns="10" HorizontalAlignment="Left" >
+                </UniformGrid>
 
-    </Canvas>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+    </ItemsControl>
+    <StackPanel Grid.Row="0" Grid.Column="2" Width="200">
+        <TextBlock>Test2</TextBlock>
     </StackPanel>
+
+    </Grid>
 
 </UserControl>

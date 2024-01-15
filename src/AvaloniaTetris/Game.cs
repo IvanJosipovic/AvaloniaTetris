@@ -1,23 +1,18 @@
-﻿using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
-using Avalonia.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Timers;
 
 namespace AvaloniaTetris
 {
     internal partial class Game : ObservableObject
     {
-        private readonly ObservableCollection<Piece> Pieces = [];
+        //private int[,] board = new int[10, 20];
+
+        private Timer? timer;
+
+        public readonly ObservableCollection<Piece> Pieces = [];
 
         private Piece? activePiece;
-
-        private Canvas canvas;
 
         private void Loop()
         {
@@ -30,12 +25,18 @@ namespace AvaloniaTetris
                 activePiece.IsActive = false;
                 activePiece = null;
             }
-
-            RenderCanvas();
         }
 
         private bool MovePieceDown()
         {
+            if (activePiece.Y == 20)
+            {
+                return false;
+            }
+
+            // Check if there is a conflict
+
+
             activePiece.Y++;
 
             return true;
@@ -48,49 +49,31 @@ namespace AvaloniaTetris
             Pieces.Add(activePiece);
         }
 
-        private void RenderCanvas()
+        public void Start()
         {
-            canvas.Children.Clear();
-            for (int x = 0; x < 10; x++)
+            if (timer == null)
             {
-                for (int y = 0; y < 20; y++)
+                timer = new Timer
                 {
-                    var activePiece = Pieces.FirstOrDefault(p => p.IsOnCoord(x, y));
-
-                    var rect = new Rectangle()
-                    {
-                        Fill = activePiece == null ? Brushes.Black : activePiece.Color,
-                        Height = 10,
-                        Width = 10,
-                        [Canvas.LeftProperty] = x * 10,
-                        [Canvas.TopProperty] = y * 10,
-                    };
-                    canvas.Children.Add(rect);
-                }
+                    Interval = 1000,
+                    Enabled = true
+                };
+                timer.Elapsed += Timer_Elapsed;
+                timer.Start();
             }
         }
 
-        // System
-
-        public void SetCanvas(Canvas canvas)
+        private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
         {
-            this.canvas = canvas;
+            Loop();
         }
-
-        public async Task Start()
-        {
-            while (true)
-            {
-                Loop();
-                await Task.Delay(1000);
-            }
-        }
-
 
         // Game Controls
 
         public void MoveLeft()
         {
+            // check if there is a conflict
+
             if (activePiece?.X > 0)
             {
                 activePiece.X--;
@@ -99,6 +82,8 @@ namespace AvaloniaTetris
 
         public void MoveRight()
         {
+            // check if there is a conflict
+
             if (activePiece?.X < 20)
             {
                 activePiece.X++;
@@ -107,8 +92,13 @@ namespace AvaloniaTetris
 
         public void MoveDown() { }
 
-        public void Rotate() { }
+        public void Rotate() {
+            // check if there is a conflict
+        }
 
-        public void Pause() { }
+        public void Pause()
+        {
+            timer?.Stop();
+        }
     }
 }

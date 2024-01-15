@@ -11,16 +11,16 @@ namespace AvaloniaTetris
     internal abstract partial class Piece : ObservableObject
     {
         [ObservableProperty]
-        public bool _isActive;
+        bool _isActive;
 
         [ObservableProperty]
-        public int[,] _size;
+        int[,] _size;
 
         [ObservableProperty]
-        public int _orientation;
+        int _orientation;
 
         [ObservableProperty]
-        public IBrush _color;
+        IBrush _color;
 
         [ObservableProperty]
         int _x;
