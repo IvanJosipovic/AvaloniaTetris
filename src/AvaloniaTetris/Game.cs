@@ -6,10 +6,10 @@ using System.Timers;
 
 namespace AvaloniaTetris;
 
-internal partial class Game : ObservableObject
+public partial class Game : ObservableObject
 {
     [ObservableProperty]
-    private bool _isActive;
+    private bool _isActive = true;
 
     private Timer? timer;
 
@@ -31,6 +31,12 @@ internal partial class Game : ObservableObject
         else
         {
             activePiece.IsActive = false;
+            if (activePiece.Y > 19)
+            {
+                IsActive = false;
+                timer?.Stop();
+                return;
+            }
             AddNewPiece();
         }
     }
@@ -51,7 +57,7 @@ internal partial class Game : ObservableObject
         return !coords.Any(x => existing.Contains(x));
     }
 
-    Random randomPiece = new();
+    readonly Random randomPiece = new();
 
     private void AddNewPiece()
     {
@@ -82,7 +88,6 @@ internal partial class Game : ObservableObject
         Pieces.Add(newPiece);
         activePiece = newPiece;
     }
-
 
     private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
     {

@@ -1,14 +1,10 @@
 ﻿using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AvaloniaTetris;
 
-internal abstract partial class Piece : ObservableObject
+public abstract partial class Piece : ObservableObject
 {
     [ObservableProperty]
     bool _isActive;

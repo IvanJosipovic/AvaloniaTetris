@@ -4,7 +4,6 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AvaloniaTetris.ViewModels;
 
@@ -20,15 +19,15 @@ public partial class MainViewModel : ViewModelBase
         Interval = TimeSpan.FromMicroseconds(100)
     };
 
-    Game game;
+    public Game Game { get; set; }
 
     public MainViewModel()
     {
         GenerateControls();
 
-        game = new Game();
+        Game = new Game();
 
-        game.Start();
+        Game.Start();
 
         timer.Tick += Timer_Tick;
 
@@ -44,7 +43,7 @@ public partial class MainViewModel : ViewModelBase
             {
                 var control = Controls[count++];
 
-                var piece = game.GetAtCoords(x, y);
+                var piece = Game.GetAtCoords(x, y);
 
                 var txtBlock = ((TextBlock)control);
 

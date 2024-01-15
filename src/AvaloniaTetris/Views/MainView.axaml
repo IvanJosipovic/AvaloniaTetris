@@ -15,7 +15,9 @@
     <Grid ColumnDefinitions="*,*,*">
         <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" >
             <TextBlock>Test</TextBlock>
-        </StackPanel>
+
+			<CheckBox IsChecked="{Binding Game.IsActive}" Content="Is Active" IsEnabled="False" />
+		</StackPanel>
 
         <ItemsControl ItemsSource="{Binding Controls}" Grid.Row="0" Grid.Column="1">
             <ItemsControl.ItemsPanel>
