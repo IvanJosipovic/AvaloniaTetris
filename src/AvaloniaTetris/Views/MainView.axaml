@@ -16,10 +16,10 @@
         <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" >
             <TextBlock>Test</TextBlock>
 
-			<CheckBox IsChecked="{Binding Game.IsActive}" Content="Is Active" IsEnabled="False" />
-		</StackPanel>
+            <CheckBox IsChecked="{Binding Game.IsActive}" Content="Is Active" IsEnabled="False" />
+        </StackPanel>
 
-        <ItemsControl ItemsSource="{Binding Controls}" Grid.Row="0" Grid.Column="1">
+        <ItemsControl ItemsSource="{Binding Controls}" Grid.Row="0" Grid.Column="1" Padding="2">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid  Rows="20" Columns="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
@@ -30,7 +30,7 @@
     <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
         <TextBlock>Test2</TextBlock>
 
-		<CheckBox IsChecked="{Binding IsDebug}" Content="Show Debug" />
+        <CheckBox IsChecked="{Binding IsDebug}" Content="Show Debug" />
     </StackPanel>
 
     </Grid>

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -11,7 +12,7 @@ public partial class Game : ObservableObject
     [ObservableProperty]
     private bool _isActive = true;
 
-    private Timer? timer;
+    private DispatcherTimer? timer;
 
     private readonly ObservableCollection<Piece> Pieces = [];
 
@@ -89,25 +90,24 @@ public partial class Game : ObservableObject
         activePiece = newPiece;
     }
 
-    private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
-    {
-        Loop();
-    }
-
     // Public
 
     public void Start()
     {
         if (timer == null)
         {
-            timer = new Timer
+            timer = new DispatcherTimer
             {
-                Interval = 1000,
-                Enabled = true
+                Interval = TimeSpan.FromSeconds(1)
             };
-            timer.Elapsed += Timer_Elapsed;
+            timer.Tick += Timer_Tick;
             timer.Start();
         }
+    }
+
+    private void Timer_Tick(object? sender, EventArgs e)
+    {
+        Loop();
     }
 
     public Piece? GetAtCoords(int x, int y)

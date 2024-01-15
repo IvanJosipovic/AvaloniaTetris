@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -45,43 +46,43 @@ public partial class MainViewModel : ViewModelBase
 
                 var piece = Game.GetAtCoords(x, y);
 
-                var txtBlock = ((TextBlock)control);
+                var border = ((Border)control);
 
                 if (piece == null)
                 {
-                    txtBlock.Background = Brushes.Black;
+                    border.Background = Brushes.Black;
                 }
                 else
                 {
                     if (piece is Straight)
                     {
-                        txtBlock.Background = Brushes.Red;
+                        border.Background = Brushes.Red;
                     }
                     else if (piece is Square)
                     {
-                        txtBlock.Background = Brushes.Blue;
+                        border.Background = Brushes.Blue;
                     }
                     else if (piece is S)
                     {
-                        txtBlock.Background = Brushes.Green;
+                        border.Background = Brushes.Green;
                     }
                     else if (piece is T)
                     {
-                        txtBlock.Background = Brushes.Pink;
+                        border.Background = Brushes.Pink;
                     }
                     else if (piece is L)
                     {
-                        txtBlock.Background = Brushes.Purple;
+                        border.Background = Brushes.Purple;
                     }
                 }
 
                 if (IsDebug)
                 {
-                    txtBlock.Text = $"{x},{y}";
+                    ((TextBlock)border.Child).Text = $"{x},{y}";
                 }
                 else
                 {
-                    txtBlock.Text = "";
+                    ((TextBlock)border.Child).Text = "";
                 }
             }
         }
@@ -95,9 +96,13 @@ public partial class MainViewModel : ViewModelBase
         {
             for (int x = 0; x <= 9; x++)
             {
+                Border border = new();
+                border.Background = Brushes.Black;
+                border.BorderBrush = Brushes.White;
+                border.BorderThickness = Thickness.Parse("1");
+
                 TextBlock txt = new()
                 {
-                    Background = Brushes.Black,
                     Width = 50,
                     Height = 50,
                 };
@@ -107,7 +112,9 @@ public partial class MainViewModel : ViewModelBase
                     txt.Text = $"{x},{y}";
                 }
 
-                Controls.Add(txt);
+                border.Child = txt;
+
+                Controls.Add(border);
             }
         }
     }
