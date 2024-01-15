@@ -1,9 +1,6 @@
 ﻿using Avalonia;
-using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace AvaloniaTetris;
 
@@ -13,10 +10,7 @@ public abstract partial class Piece : ObservableObject
     bool _isActive;
 
     [ObservableProperty]
-    int[,] _size;
-
-    [ObservableProperty]
-    IBrush _color;
+    int[,] _shape;
 
     [ObservableProperty]
     int _x;
@@ -24,31 +18,25 @@ public abstract partial class Piece : ObservableObject
     [ObservableProperty]
     int _y;
 
-    public bool IsOnCoord(double x, double y)
-    {
-        var point = new Point(x, y);
-        return GetUsedCoords().Any(p => p == point);
-    }
-
     public List<Point> GetUsedCoords(double xOffset = 0, double yOffset = 0, bool rotate = false)
     {
         List<Point> coords = [];
 
-        var localSize = Size;
+        var newShape = Shape;
 
         if (rotate)
         {
-            localSize = RotateMatrixCounterClockwise(Size);
+            newShape = RotateMatrixCounterClockwise(Shape);
         }
 
-        int rows = localSize.GetLength(0);
-        int columns = localSize.GetLength(1);
+        int rows = newShape.GetLength(0);
+        int columns = newShape.GetLength(1);
 
         for (int x = 0; x < rows; x++)
         {
             for (int y = 0; y < columns; y++)
             {
-                int currentValue = localSize[x, y];
+                int currentValue = newShape[x, y];
 
                 if (currentValue == 1)
                 {
@@ -105,7 +93,7 @@ public abstract partial class Piece : ObservableObject
     {
         if (IsActive)
         {
-            Size = RotateMatrixCounterClockwise(Size);
+            Shape = RotateMatrixCounterClockwise(Shape);
         }
     }
 }
@@ -114,8 +102,7 @@ internal class Straight : Piece
 {
     public Straight()
     {
-        Color = Brushes.Red;
-        Size = new int[,] { { 1, 1, 1, 1 } };
+        Shape = new int[,] { { 1, 1, 1, 1 } };
         X = 3;
         Y = 20;
     }
@@ -125,8 +112,7 @@ internal class Square : Piece
 {
     public Square()
     {
-        Color = Brushes.Green;
-        Size = new int[,] { { 1, 1 },
+        Shape = new int[,] { { 1, 1 },
                             { 1, 1 }};
         X = 4;
         Y = 21;
@@ -137,8 +123,7 @@ internal class T : Piece
 {
     public T()
     {
-        Color = Brushes.Yellow;
-        Size = new int[,] { { 1, 1, 1 },
+        Shape = new int[,] { { 1, 1, 1 },
                             { 0, 1, 0 }};
         X = 3;
         Y = 21;
@@ -149,8 +134,7 @@ internal class L : Piece
 {
     public L()
     {
-        Color = Brushes.Blue;
-        Size = new int[,] { { 1, 1, 1 },
+        Shape = new int[,] { { 1, 1, 1 },
                             { 0, 0, 1 }};
         X = 4;
         Y = 21;
@@ -161,8 +145,7 @@ internal class S : Piece
 {
     public S()
     {
-        Color = Brushes.Pink;
-        Size = new int[,] { { 1, 1, 0 },
+        Shape = new int[,] { { 1, 1, 0 },
                             { 0, 1, 1 }};
         X = 4;
         Y = 21;

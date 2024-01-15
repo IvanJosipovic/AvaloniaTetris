@@ -12,6 +12,15 @@ public partial class Game : ObservableObject
     private Dictionary<Point, Piece> Points { get; set; } = [];
 
     [ObservableProperty]
+    private int _level = 1;
+
+    [ObservableProperty]
+    private int _score = 0;
+
+    [ObservableProperty]
+    private int _lines = 0;
+
+    [ObservableProperty]
     private bool _isActive = true;
 
     private DispatcherTimer? timer;
@@ -157,6 +166,7 @@ public partial class Game : ObservableObject
             // Means end game
             if (activePiece.Y > 19)
             {
+                IsActive = false;
                 timer?.Stop();
                 return;
             }
@@ -179,7 +189,7 @@ public partial class Game : ObservableObject
             return;
         }
 
-        if (coords.Any(point => point.Y > 19))
+        if (coords.Any(point => point.Y > 20))
         {
             return;
         }

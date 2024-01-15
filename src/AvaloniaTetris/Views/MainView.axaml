@@ -14,8 +14,20 @@
 
     <Grid ColumnDefinitions="*,*,*">
         <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" >
-            <TextBlock>Test</TextBlock>
+            <TextBlock>Stats</TextBlock>
 
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Level: "></Label>
+                <Label Content="{Binding Game.Level}"></Label>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Score: "></Label>
+                <Label Content="{Binding Game.Score}"></Label>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Lines: "></Label>
+                <Label Content="{Binding Game.Lines}"></Label>
+            </StackPanel>
             <CheckBox IsChecked="{Binding Game.IsActive}" Content="Is Active" IsEnabled="False" />
         </StackPanel>
 
@@ -28,7 +40,7 @@
         </ItemsControl>
 
         <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
-            <TextBlock>Test2</TextBlock>
+            <TextBlock>Controls</TextBlock>
 
             <CheckBox IsChecked="{Binding IsDebug}" Content="Show Debug" />
 
