@@ -12,7 +12,7 @@ public partial class MainViewModel : ViewModelBase
 {
     public ObservableCollection<Control> Controls { get; set; } = [];
 
-    private readonly DispatcherTimer timer = new DispatcherTimer()
+    private readonly DispatcherTimer timer = new()
     {
         Interval = TimeSpan.FromMicroseconds(500)
     };
@@ -35,6 +35,14 @@ public partial class MainViewModel : ViewModelBase
     private void Timer_Tick(object? sender, EventArgs e)
     {
         //RenderControls();
+
+        for (int y = 0; y < 20; y++)
+        {
+            for (int x = 0; x < 10; x++)
+            {
+
+            }
+        }
     }
 
     public string Greeting => "Welcome to Avalonia Tetris!";
@@ -43,19 +51,19 @@ public partial class MainViewModel : ViewModelBase
     {
         Controls.Clear();
 
-        for (int y = 0; y < 10; y++)
+        for (int y = 19; y >= 0; y--)
         {
-            for (int x = 0; x < 20; x++)
+            for (int x = 0; x <= 9; x++)
             {
-                Rectangle myRectangle = new()
+                TextBlock txt = new()
                 {
-                    Fill = new SolidColorBrush(Color.FromRgb((byte)(y * x * 20), 0, 0)),
+                    Background = Brushes.Red,
+                    Text = $"{x},{y}",
                     Width = 50,
-                    Height = 50,
-                    [Grid.ColumnProperty] = y,
-                    [Grid.RowProperty] = x
+                    Height = 50
                 };
-                Controls.Add(myRectangle);
+
+                Controls.Add(txt);
             }
         }
     }

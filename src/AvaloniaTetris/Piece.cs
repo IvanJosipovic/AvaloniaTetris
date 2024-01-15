@@ -6,96 +6,95 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AvaloniaTetris
+namespace AvaloniaTetris;
+
+internal abstract partial class Piece : ObservableObject
 {
-    internal abstract partial class Piece : ObservableObject
+    [ObservableProperty]
+    bool _isActive;
+
+    [ObservableProperty]
+    int[,] _size;
+
+    [ObservableProperty]
+    int _orientation;
+
+    [ObservableProperty]
+    IBrush _color;
+
+    [ObservableProperty]
+    int _x;
+
+    [ObservableProperty]
+    int _y;
+
+    public bool IsOnCoord(int x, int y)
     {
-        [ObservableProperty]
-        bool _isActive;
-
-        [ObservableProperty]
-        int[,] _size;
-
-        [ObservableProperty]
-        int _orientation;
-
-        [ObservableProperty]
-        IBrush _color;
-
-        [ObservableProperty]
-        int _x;
-
-        [ObservableProperty]
-        int _y;
-
-        public bool IsOnCoord(int x, int y)
+        // Y is beyond our Piece
+        if (y > Y)
         {
-            // Y is beyond our Piece
-            if (y > Y)
-            {
-                return false;
-            }
-
             return false;
         }
-    }
 
-    internal class Straight : Piece
-    {
-        public Straight()
-        {
-            Color = Brushes.Red;
-            Size = new int[,] { { 1, 1, 1, 1 } };
-            X = 3;
-            Y = 0;
-        }
+        return false;
     }
+}
 
-    internal class Square : Piece
+internal class Straight : Piece
+{
+    public Straight()
     {
-        public Square()
-        {
-            Color = Brushes.Green;
-            Size = new int[,] { { 1, 1 },
-                                { 1, 1 }};
-            X = 4;
-            Y = 0;
-        }
+        Color = Brushes.Red;
+        Size = new int[,] { { 1, 1, 1, 1 } };
+        X = 3;
+        Y = 0;
     }
+}
 
-    internal class T : Piece
+internal class Square : Piece
+{
+    public Square()
     {
-        public T()
-        {
-            Color = Brushes.Yellow;
-            Size = new int[,] { { 1, 1, 1 },
-                                { 0, 1, 0 }};
-            X = 3;
-            Y = 0;
-        }
+        Color = Brushes.Green;
+        Size = new int[,] { { 1, 1 },
+                            { 1, 1 }};
+        X = 4;
+        Y = 0;
     }
+}
 
-    internal class L : Piece
+internal class T : Piece
+{
+    public T()
     {
-        public L()
-        {
-            Color = Brushes.Blue;
-            Size = new int[,] { { 1, 1, 1 },
-                                { 0, 0, 1 }};
-            X = 4;
-            Y = 0;
-        }
+        Color = Brushes.Yellow;
+        Size = new int[,] { { 1, 1, 1 },
+                            { 0, 1, 0 }};
+        X = 3;
+        Y = 0;
     }
+}
 
-    internal class S : Piece
+internal class L : Piece
+{
+    public L()
     {
-        public S()
-        {
-            Color = Brushes.Pink;
-            Size = new int[,] { { 1, 1, 0 },
-                                { 0, 1, 1 }};
-            X = 4;
-            Y = 0;
-        }
+        Color = Brushes.Blue;
+        Size = new int[,] { { 1, 1, 1 },
+                            { 0, 0, 1 }};
+        X = 4;
+        Y = 0;
+    }
+}
+
+internal class S : Piece
+{
+    public S()
+    {
+        Color = Brushes.Pink;
+        Size = new int[,] { { 1, 1, 0 },
+                            { 0, 1, 1 }};
+        X = 4;
+        Y = 0;
     }
 }

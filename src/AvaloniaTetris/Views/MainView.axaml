@@ -13,22 +13,19 @@
   </Design.DataContext>
 
     <Grid ColumnDefinitions="*,*,*">
-        <StackPanel Grid.Row="0" Grid.Column="0" Width="200">
+        <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" >
             <TextBlock>Test</TextBlock>
         </StackPanel>
-    <ItemsControl ItemsSource="{Binding Controls}" Grid.Row="0" Grid.Column="1">
-        <!-- ItemsPanelTemplate -->
-        <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-                <!--<Grid  RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*,*" HorizontalAlignment="Left" Height="400" Width="200">
-                </Grid>-->
-                <UniformGrid  Rows="20" Columns="10" HorizontalAlignment="Left" >
-                </UniformGrid>
 
-            </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-    </ItemsControl>
-    <StackPanel Grid.Row="0" Grid.Column="2" Width="200">
+        <ItemsControl ItemsSource="{Binding Controls}" Grid.Row="0" Grid.Column="1">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid  Rows="20" Columns="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
+    <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
         <TextBlock>Test2</TextBlock>
     </StackPanel>
 
