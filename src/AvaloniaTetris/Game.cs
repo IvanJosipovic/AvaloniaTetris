@@ -205,10 +205,12 @@ public partial class Game : ObservableObject
     {
         if (timer?.IsEnabled == true)
         {
+            IsActive = false;
             timer?.Stop();
         }
         else
         {
+            IsActive = true;
             timer?.Start();
         }
     }
@@ -218,6 +220,10 @@ public partial class Game : ObservableObject
         Level = 1;
         Score = 0;
         Lines = 0;
+
+        IsActive = true;
+
+        timer?.Start();
 
         Points.Clear();
 
