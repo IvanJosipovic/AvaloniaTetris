@@ -27,19 +27,9 @@ public partial class Game : ObservableObject
 
     private Piece? activePiece;
 
-    private void Loop()
-    {
-        if (activePiece == null)
-        {
-            AddNewPiece();
-        }
-
-        MoveDown();
-    }
-
     private void Timer_Tick(object? sender, EventArgs e)
     {
-        Loop();
+        MoveDown();
     }
 
     private bool CanMovePieceDown()
@@ -81,6 +71,8 @@ public partial class Game : ObservableObject
     {
         if (timer == null)
         {
+            AddNewPiece();
+
             timer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
@@ -157,11 +149,6 @@ public partial class Game : ObservableObject
         {
             activePiece.IsActive = false;
 
-            foreach (var point in activePiece.GetUsedCoords())
-            {
-                Points.Add(point, activePiece);
-            }
-
             // Check if piece failed to go to first row
             // Means end game
             if (activePiece.Y > 19)
@@ -171,7 +158,13 @@ public partial class Game : ObservableObject
                 return;
             }
 
+            foreach (var point in activePiece.GetUsedCoords())
+            {
+                Points.Add(point, activePiece);
+            }
+
             AddNewPiece();
+            MoveDown();
         }
     }
 
@@ -210,6 +203,24 @@ public partial class Game : ObservableObject
 
     public void Pause()
     {
-        timer?.Stop();
+        if (timer?.IsEnabled == true)
+        {
+            timer?.Stop();
+        }
+        else
+        {
+            timer?.Start();
+        }
+    }
+
+    public void Restart()
+    {
+        Level = 1;
+        Score = 0;
+        Lines = 0;
+
+        Points.Clear();
+
+        AddNewPiece();
     }
 }

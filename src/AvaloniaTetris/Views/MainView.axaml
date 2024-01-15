@@ -29,15 +29,19 @@
                 <Label Content="{Binding Game.Lines}"></Label>
             </StackPanel>
             <CheckBox IsChecked="{Binding Game.IsActive}" Content="Is Active" IsEnabled="False" />
+            <Button Command="{Binding RestartCommand}">Restart</Button>
+            <Button Command="{Binding PauseCommand}">Pause</Button>
         </StackPanel>
 
-        <ItemsControl ItemsSource="{Binding Controls}" Grid.Row="0" Grid.Column="1" Padding="2">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid  Rows="20" Columns="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
+        <Viewbox Stretch="Uniform" Grid.Row="0" Grid.Column="1">
+            <ItemsControl ItemsSource="{Binding Controls}"  Padding="2">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="20" Columns="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Viewbox>
 
         <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
             <TextBlock>Controls</TextBlock>

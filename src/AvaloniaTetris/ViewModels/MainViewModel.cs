@@ -142,4 +142,16 @@ public partial class MainViewModel : ViewModelBase
     {
         Game.Rotate();
     }
+
+    [RelayCommand]
+    private void Pause()
+    {
+        Game.Pause();
+    }
+
+    [RelayCommand]
+    private void Restart()
+    {
+        Game.Restart();
+    }
 }
