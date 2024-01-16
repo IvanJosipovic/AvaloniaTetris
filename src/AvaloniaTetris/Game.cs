@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls.Shapes;
+﻿using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -35,7 +35,7 @@ public partial class Game : ObservableObject
     [ObservableProperty]
     private bool _isActive = true;
 
-    private object _lock = new();
+    private readonly object _lock = new();
 
     private DispatcherTimer? timer;
 
@@ -44,41 +44,6 @@ public partial class Game : ObservableObject
     private void Timer_Tick(object? sender, EventArgs e)
     {
         MoveDown();
-
-        // Check if a row needs to be removed
-
-        //for (int y = 0; y <= 19; y++)
-        //{
-        //    bool removeRow = true;
-
-        //    for (int x = 0; x <= 9; x++)
-        //    {
-        //        if (!Points.ContainsKey(new Point(x,y)))
-        //        {
-        //            removeRow = false;
-        //            break;
-        //        }
-        //    }
-
-        //    if (removeRow)
-        //    {
-        //        for (int x = 0; x <= 9; x++)
-        //        {
-        //            Points.Remove(new Point(x, y));
-        //        }
-
-        //        for (int yy = y + 1; yy <= 19; yy++)
-        //        {
-        //            for (int x = 0; x <= 9; x++)
-        //            {
-        //                if (Points.TryGetValue(new Point(x, yy), out var pt))
-        //                {
-        //                    pt.MoveDown();
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
     }
 
     readonly Random randomPiece = new();
@@ -140,6 +105,51 @@ public partial class Game : ObservableObject
         }
     }
 
+    private void RemoveFullRow()
+    {
+        //Check if a row needs to be removed
+        for (int y = 0; y <= 19; y++)
+        {
+            Top:
+            bool removeRow = true;
+
+            for (int x = 0; x <= 9; x++)
+            {
+                var pos = Positions[x, y];
+
+                if (pos.Type == 0 && !pos.IsActive)
+                {
+                    removeRow = false;
+                    break;
+                }
+            }
+
+            if (removeRow)
+            {
+                Score += 100;
+                Lines++;
+
+                for (int yy = y + 1; yy <= 19; yy++)
+                {
+                    for (int x = 0; x <= 9; x++)
+                    {
+                        var old = Positions[x, yy - 1];
+
+                        var newOb = Positions[x, yy];
+
+                        if (!old.IsActive && !newOb.IsActive)
+                        {
+                            old.Type = newOb.Type;
+                            old.IsActive = false;
+                        }
+                    }
+                }
+
+                goto Top;
+            }
+        }
+    }
+
     // Public
 
     public void Start()
@@ -161,7 +171,7 @@ public partial class Game : ObservableObject
     // Game Controls
 
     [RelayCommand]
-    public void MoveLeft()
+    void MoveLeft()
     {
         if (!IsActive) { return; }
 
@@ -188,7 +198,7 @@ public partial class Game : ObservableObject
     }
 
     [RelayCommand]
-    public void MoveRight()
+    void MoveRight()
     {
         if (!IsActive) { return; }
 
@@ -215,7 +225,7 @@ public partial class Game : ObservableObject
     }
 
     [RelayCommand]
-    public void MoveDown()
+    void MoveDown()
     {
         if (!IsActive) { return; }
 
@@ -224,7 +234,7 @@ public partial class Game : ObservableObject
             // Get coords for one row down
             var coords = activePiece.GetUsedCoords(0, -1);
 
-            // Check if there is a conflict
+            // Check if we have reached the end or there is a conflict
             if (!coords.Any(p => p.Y < 0) && !coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
             {
                 ClearActivePiece();
@@ -246,12 +256,13 @@ public partial class Game : ObservableObject
 
                 AddNewPiece();
                 SetActivePiece();
+                RemoveFullRow();
             }
         }
     }
 
     [RelayCommand]
-    public void Rotate()
+    void Rotate()
     {
         if (!IsActive) { return; }
 
@@ -293,7 +304,7 @@ public partial class Game : ObservableObject
     }
 
     [RelayCommand]
-    public void Pause()
+    void Pause()
     {
         if (timer?.IsEnabled == true)
         {
@@ -308,7 +319,7 @@ public partial class Game : ObservableObject
     }
 
     [RelayCommand]
-    public void Restart()
+    void Restart()
     {
         Level = 1;
         Score = 0;

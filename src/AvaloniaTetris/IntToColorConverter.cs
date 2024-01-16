@@ -25,7 +25,7 @@ public class IntToColorConverter : IValueConverter
                 case 3:
                     return Brushes.Green;
                 case 4:
-                    return Brushes.Pink;
+                    return Brushes.Orange;
                 case 5:
                     return Brushes.Purple;
             }
