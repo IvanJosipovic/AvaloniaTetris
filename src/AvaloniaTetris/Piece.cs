@@ -7,9 +7,6 @@ namespace AvaloniaTetris;
 public abstract partial class Piece : ObservableObject
 {
     [ObservableProperty]
-    bool _isActive;
-
-    [ObservableProperty]
     int[,] _shape;
 
     [ObservableProperty]
@@ -67,34 +64,22 @@ public abstract partial class Piece : ObservableObject
 
     public void MoveDown()
     {
-        if (IsActive)
-        {
-            Y--;
-        }
+        Y--;
     }
 
     public void MoveLeft()
     {
-        if (IsActive)
-        {
-            X--;
-        }
+        X--;
     }
 
     public void MoveRight()
     {
-        if (IsActive)
-        {
-            X++;
-        }
+        X++;
     }
 
     public void Rotate()
     {
-        if (IsActive)
-        {
-            Shape = RotateMatrixCounterClockwise(Shape);
-        }
+        Shape = RotateMatrixCounterClockwise(Shape);
     }
 }
 
@@ -104,7 +89,7 @@ internal class Straight : Piece
     {
         Shape = new int[,] { { 1, 1, 1, 1 } };
         X = 3;
-        Y = 20;
+        Y = 19;
     }
 }
 
@@ -113,9 +98,9 @@ internal class Square : Piece
     public Square()
     {
         Shape = new int[,] { { 1, 1 },
-                            { 1, 1 }};
+                             { 1, 1 }};
         X = 4;
-        Y = 21;
+        Y = 18;
     }
 }
 
@@ -124,9 +109,9 @@ internal class T : Piece
     public T()
     {
         Shape = new int[,] { { 1, 1, 1 },
-                            { 0, 1, 0 }};
+                             { 0, 1, 0 }};
         X = 3;
-        Y = 21;
+        Y = 18;
     }
 }
 
@@ -135,9 +120,9 @@ internal class L : Piece
     public L()
     {
         Shape = new int[,] { { 1, 1, 1 },
-                            { 0, 0, 1 }};
+                             { 0, 0, 1 }};
         X = 4;
-        Y = 21;
+        Y = 18;
     }
 }
 
@@ -146,8 +131,8 @@ internal class S : Piece
     public S()
     {
         Shape = new int[,] { { 1, 1, 0 },
-                            { 0, 1, 1 }};
+                             { 0, 1, 1 }};
         X = 4;
-        Y = 21;
+        Y = 18;
     }
 }

@@ -1,15 +1,27 @@
-﻿using Avalonia;
+﻿using Avalonia.Controls.Shapes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace AvaloniaTetris;
 
 public partial class Game : ObservableObject
 {
-    private Dictionary<Point, Piece> Points { get; set; } = [];
+    public Game()
+    {
+        for (int y = 0; y <= 19; y++)
+        {
+            for (int x = 0; x <= 9; x++)
+            {
+                Positions[x, y] = new GridPoint();
+            }
+        }
+    }
+
+    [ObservableProperty]
+    private GridPoint[,] _positions = new GridPoint[10,20];
 
     [ObservableProperty]
     private int _level = 1;
@@ -23,6 +35,8 @@ public partial class Game : ObservableObject
     [ObservableProperty]
     private bool _isActive = true;
 
+    private object _lock = new();
+
     private DispatcherTimer? timer;
 
     private Piece? activePiece;
@@ -30,21 +44,41 @@ public partial class Game : ObservableObject
     private void Timer_Tick(object? sender, EventArgs e)
     {
         MoveDown();
-    }
 
-    private bool CanMovePieceDown()
-    {
-        // Get coords for one row down
-        var coords = activePiece.GetUsedCoords(0,-1);
+        // Check if a row needs to be removed
 
-        // Piece has reached the end
-        if (coords.Any(p => p.Y < 0))
-        {
-            return false;
-        }
+        //for (int y = 0; y <= 19; y++)
+        //{
+        //    bool removeRow = true;
 
-        // Check if there is a conflict
-        return !coords.Any(Points.ContainsKey);
+        //    for (int x = 0; x <= 9; x++)
+        //    {
+        //        if (!Points.ContainsKey(new Point(x,y)))
+        //        {
+        //            removeRow = false;
+        //            break;
+        //        }
+        //    }
+
+        //    if (removeRow)
+        //    {
+        //        for (int x = 0; x <= 9; x++)
+        //        {
+        //            Points.Remove(new Point(x, y));
+        //        }
+
+        //        for (int yy = y + 1; yy <= 19; yy++)
+        //        {
+        //            for (int x = 0; x <= 9; x++)
+        //            {
+        //                if (Points.TryGetValue(new Point(x, yy), out var pt))
+        //                {
+        //                    pt.MoveDown();
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
     }
 
     readonly Random randomPiece = new();
@@ -61,8 +95,49 @@ public partial class Game : ObservableObject
             5 => new S(),
             _ => throw new Exception(),
         };
-        newPiece.IsActive = true;
         activePiece = newPiece;
+    }
+
+    private void ClearActivePiece()
+    {
+        foreach (var point in activePiece.GetUsedCoords())
+        {
+            var pos = Positions[(int)point.X, (int)point.Y];
+            pos.Type = 0;
+            pos.IsActive = false;
+        }
+    }
+
+    private void SetActivePiece(bool isActive = true)
+    {
+        int shape = 0;
+        if (activePiece is Straight)
+        {
+            shape = 1;
+        }
+        else if (activePiece is Square)
+        {
+            shape = 2;
+        }
+        else if (activePiece is S)
+        {
+            shape = 3;
+        }
+        else if (activePiece is T)
+        {
+            shape = 4;
+        }
+        else if (activePiece is L)
+        {
+            shape = 5;
+        }
+
+        foreach (var point in activePiece.GetUsedCoords())
+        {
+            var pos = Positions[(int)point.X, (int)point.Y];
+            pos.Type = shape;
+            pos.IsActive = isActive;
+        }
     }
 
     // Public
@@ -72,6 +147,7 @@ public partial class Game : ObservableObject
         if (timer == null)
         {
             AddNewPiece();
+            SetActivePiece();
 
             timer = new DispatcherTimer
             {
@@ -82,125 +158,141 @@ public partial class Game : ObservableObject
         }
     }
 
-    public Piece? GetAtCoords(int x, int y)
-    {
-        var pt = new Point(x, y);
-        if (Points.TryGetValue(pt, out var value))
-        {
-            return value;
-        }
-
-        if (activePiece?.GetUsedCoords().Contains(pt) == true)
-        {
-            return activePiece;
-        }
-
-        return null;
-    }
-
     // Game Controls
 
+    [RelayCommand]
     public void MoveLeft()
     {
-        var coords = activePiece?.GetUsedCoords(-1, 0);
+        if (!IsActive) { return; }
 
-        // Check for out of bounds
-        if (coords.Any(point => point.X < 0))
+        lock (_lock)
         {
-            return;
-        }
+            var coords = activePiece?.GetUsedCoords(-1, 0);
 
-        // Check if peice has a conflict
-        if (coords.Any(x => Points.ContainsKey(x)))
-        {
-            return;
-        }
-
-        activePiece.MoveLeft();
-
-    }
-
-    public void MoveRight()
-    {
-        var coords = activePiece?.GetUsedCoords(1,0);
-
-        // Check for out of bounds
-        if (coords.Any(point => point.X > 9))
-        {
-            return;
-        }
-
-        // Check if piece has a conflict
-        if (coords.Any(x => Points.ContainsKey(x)))
-        {
-            return;
-        }
-
-        activePiece.MoveRight();
-    }
-
-    public void MoveDown()
-    {
-        if (CanMovePieceDown())
-        {
-            activePiece.MoveDown();
-        }
-        else
-        {
-            activePiece.IsActive = false;
-
-            // Check if piece failed to go to first row
-            // Means end game
-            if (activePiece.Y > 19)
+            // Check for out of bounds
+            if (coords.Any(point => point.X < 0))
             {
-                IsActive = false;
-                timer?.Stop();
                 return;
             }
 
-            foreach (var point in activePiece.GetUsedCoords())
+            // Check if piece has a conflict
+            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
             {
-                Points.Add(point, activePiece);
+                return;
             }
 
-            AddNewPiece();
-            MoveDown();
+            ClearActivePiece();
+            activePiece.MoveLeft();
+            SetActivePiece();
         }
     }
 
-    public void Rotate() {
-        var coords = activePiece?.GetUsedCoords(0, 0, true);
+    [RelayCommand]
+    public void MoveRight()
+    {
+        if (!IsActive) { return; }
 
-        // Check for out of bounds
-        if (coords.Any(point => point.X < 0))
+        lock (_lock)
         {
-            return;
-        }
+            var coords = activePiece?.GetUsedCoords(1, 0);
 
-        if (coords.Any(point => point.X > 9))
-        {
-            return;
-        }
+            // Check for out of bounds
+            if (coords.Any(point => point.X > 9))
+            {
+                return;
+            }
 
-        if (coords.Any(point => point.Y > 20))
-        {
-            return;
-        }
+            // Check if piece has a conflict
+            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            {
+                return;
+            }
 
-        if (coords.Any(point => point.Y < 0))
-        {
-            return;
+            ClearActivePiece();
+            activePiece.MoveRight();
+            SetActivePiece();
         }
-
-        // Check if piece has a conflict
-        if (coords.Any(x => Points.ContainsKey(x)))
-        {
-            return;
-        }
-
-        activePiece.Rotate();
     }
 
+    [RelayCommand]
+    public void MoveDown()
+    {
+        if (!IsActive) { return; }
+
+        lock (_lock)
+        {
+            // Get coords for one row down
+            var coords = activePiece.GetUsedCoords(0, -1);
+
+            // Check if there is a conflict
+            if (!coords.Any(p => p.Y < 0) && !coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            {
+                ClearActivePiece();
+                activePiece.MoveDown();
+                SetActivePiece();
+            }
+            else
+            {
+                // Check if piece failed to go to first row
+                // Means end game
+                if (activePiece.Y == 19)
+                {
+                    IsActive = false;
+                    timer?.Stop();
+                    return;
+                }
+
+                SetActivePiece(false);
+
+                AddNewPiece();
+                SetActivePiece();
+            }
+        }
+    }
+
+    [RelayCommand]
+    public void Rotate()
+    {
+        if (!IsActive) { return; }
+
+        lock (_lock)
+        {
+            var coords = activePiece?.GetUsedCoords(0, 0, true);
+
+            // Check for out of bounds
+            if (coords.Any(point => point.X < 0))
+            {
+                return;
+            }
+
+            if (coords.Any(point => point.X > 9))
+            {
+                return;
+            }
+
+            if (coords.Any(point => point.Y > 19))
+            {
+                return;
+            }
+
+            if (coords.Any(point => point.Y < 0))
+            {
+                return;
+            }
+
+            // Check if piece has a conflict
+            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            {
+                return;
+            }
+
+            ClearActivePiece();
+            activePiece.Rotate();
+            SetActivePiece();
+        }
+    }
+
+    [RelayCommand]
     public void Pause()
     {
         if (timer?.IsEnabled == true)
@@ -215,6 +307,7 @@ public partial class Game : ObservableObject
         }
     }
 
+    [RelayCommand]
     public void Restart()
     {
         Level = 1;
@@ -225,8 +318,17 @@ public partial class Game : ObservableObject
 
         timer?.Start();
 
-        Points.Clear();
+        for (int y = 0; y <= 19; y++)
+        {
+            for (int x = 0; x <= 9; x++)
+            {
+                var pos = Positions[x, y];
+                pos.Type = 0;
+                pos.IsActive = false;
+            }
+        }
 
         AddNewPiece();
+        SetActivePiece();
     }
 }
