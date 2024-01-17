@@ -21,6 +21,8 @@ jobs:
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
+      env:
+        DOTNET_INSTALL_DIR: "./.dotnet"
       with:
         global-json-file: global.json
 
@@ -41,6 +43,8 @@ jobs:
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
+      env:
+        DOTNET_INSTALL_DIR: "./.dotnet"
       with:
         global-json-file: global.json
 
