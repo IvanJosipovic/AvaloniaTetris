@@ -9,5 +9,20 @@
   "platformAutomerge": true,
   "ignorePaths": [
     "**/docs/**"
+  ],
+  "packageRules": [
+    {
+      "groupName": "Avalonia",
+      "separateMajorMinor": true,
+      "groupSlug": "avalonia-libs",
+      "packageRules": [
+        {
+          "matchPackagePatterns": [
+            "Avalonia",
+            "Avalonia.*"
+          ]
+        }
+      ]
+    }
   ]
 }
