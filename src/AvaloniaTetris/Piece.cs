@@ -115,9 +115,9 @@ internal class T : Piece
     }
 }
 
-internal class L : Piece
+internal class L1 : Piece
 {
-    public L()
+    public L1()
     {
         Shape = new int[,] { { 1, 1, 1 },
                              { 0, 0, 1 }};
@@ -125,13 +125,41 @@ internal class L : Piece
         Y = 18;
     }
 }
-
-internal class S : Piece
+internal class L2 : Piece
 {
-    public S()
+    public L2()
     {
-        Shape = new int[,] { { 1, 1, 0 },
-                             { 0, 1, 1 }};
+        Shape = new int[,] { { 0, 0, 1 },
+                             { 1, 1, 1 }};
+        X = 4;
+        Y = 18;
+    }
+}
+
+
+internal class S1 : Piece
+{
+    public S1()
+    {
+        Shape = new int[,]
+        {
+            { 1, 1, 0 },
+            { 0, 1, 1 }
+        };
+        X = 4;
+        Y = 18;
+    }
+}
+
+internal class S2 : Piece
+{
+    public S2()
+    {
+        Shape = new int[,]
+        {
+            { 0, 1, 1 },
+            { 1, 1, 0 }
+        };
         X = 4;
         Y = 18;
     }
