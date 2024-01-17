@@ -60,6 +60,8 @@ jobs:
 
     - name: Setup Node
       uses: actions/setup-node@v4
+      with:
+        node-version: 'latest'
 
     - name: Install NPX
       run: npm install -g npx
