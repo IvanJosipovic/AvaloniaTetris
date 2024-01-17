@@ -58,6 +58,9 @@ jobs:
       working-directory: src/AvaloniaTetris.Browser
       run: dotnet publish -c Release
 
+    - name: Setup Node
+      uses: actions/setup-node@v4
+
     - name: Deploy
       run: npx netlify deploy ${{ (github.ref == 'refs/heads/master' && '--prod') || '' }} --json -d src/AvaloniaTetris.Browser/bin/Release/net8.0/browser-wasm/AppBundle/
       env:
