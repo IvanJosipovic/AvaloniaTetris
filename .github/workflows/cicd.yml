@@ -15,7 +15,7 @@ on:
 jobs:
   build-test:
     name: Build & Test
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v4
 
@@ -33,7 +33,7 @@ jobs:
   create-release:
     if: ${{ github.event_name != 'pull_request' }}
     name: Create Release
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build-test
     steps:
     - name: Checkout code
