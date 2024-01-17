@@ -75,10 +75,10 @@
 
             <TextBlock>Manual:</TextBlock>
             <StackPanel Orientation="Horizontal">
-                <Button Command="{Binding Game.MoveLeftCommand}" HotKey="Left">&lt;</Button>
-                <Button Command="{Binding Game.RotateCommand}" HotKey="Up">^</Button>
-                <Button Command="{Binding Game.MoveDownCommand}" HotKey="Down">v</Button>
-                <Button Command="{Binding Game.MoveRightCommand}" HotKey="Right">&gt;</Button>
+                <Button Command="{Binding Game.MoveLeftCommand}" HotKey="Left">←</Button>
+                <Button Command="{Binding Game.RotateCommand}" HotKey="Up">↑</Button>
+                <Button Command="{Binding Game.MoveDownCommand}" HotKey="Down">↓</Button>
+                <Button Command="{Binding Game.MoveRightCommand}" HotKey="Right">→</Button>
             </StackPanel>
         </StackPanel>
 
