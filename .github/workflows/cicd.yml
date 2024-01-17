@@ -63,9 +63,6 @@ jobs:
       with:
         node-version: 'latest'
 
-    - name: Install NPX
-      run: npm install -g npx
-
     - name: Deploy
       run: npx netlify deploy ${{ (github.ref == 'refs/heads/master' && '--prod') || '' }} --json -d src/AvaloniaTetris.Browser/bin/Release/net8.0/browser-wasm/AppBundle/
       env:
