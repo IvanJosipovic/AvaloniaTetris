@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:AvaloniaTetris.ViewModels"
+             xmlns:local="clr-namespace:AvaloniaTetris"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AvaloniaTetris.Views.MainView"
+             x:DataType="vm:MainViewModel">
+  <Design.DataContext>
+    <!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <vm:MainViewModel />
+  </Design.DataContext>
+
+    <UserControl.Resources>
+            <local:IntToColorConverter x:Key="intToColorConverter"/>
+    </UserControl.Resources>
+
+    <Grid ColumnDefinitions="*,*,*">
+        <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" >
+            <TextBlock>Stats</TextBlock>
+
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Level: "></Label>
+                <Label Content="{Binding Game.Level}"></Label>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Score: "></Label>
+                <Label Content="{Binding Game.Score}"></Label>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Lines: "></Label>
+                <Label Content="{Binding Game.Lines}"></Label>
+            </StackPanel>
+            <CheckBox IsChecked="{Binding Game.IsActive}" Content="Is Active" IsEnabled="False" />
+            <Button Command="{Binding Game.RestartCommand}">Restart</Button>
+            <Button Command="{Binding Game.PauseCommand}">Pause</Button>
+        </StackPanel>
+
+        <Viewbox Stretch="Uniform" Grid.Row="0" Grid.Column="1">
+            <ItemsControl ItemsSource="{Binding OrderedPoints}" Padding="2">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Height="50"
+                                Width="50"
+                                BorderThickness="1"
+                                BorderBrush="White"
+                                CornerRadius="4"
+                                BoxShadow="inset 1 1 1 1 DarkGray"
+                                Background="{Binding Type, Converter={StaticResource intToColorConverter}}"
+                                >
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="20" Columns="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Viewbox>
+
+        <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
+            <TextBlock>Controls</TextBlock>
+            <TextBlock></TextBlock>
+
+            <TextBlock>Keyboard:</TextBlock>
+            <TextBlock>Left</TextBlock>
+            <TextBlock>Right</TextBlock>
+            <TextBlock>Up - Rotate</TextBlock>
+            <TextBlock>Down</TextBlock>
+
+            <TextBlock></TextBlock>
+
+            <TextBlock>Manual:</TextBlock>
+            <StackPanel Orientation="Horizontal">
+                <Button Command="{Binding Game.MoveLeftCommand}" HotKey="Left">←</Button>
+                <Button Command="{Binding Game.RotateCommand}" HotKey="Up">↑</Button>
+                <Button Command="{Binding Game.MoveDownCommand}" HotKey="Down">↓</Button>
+                <Button Command="{Binding Game.MoveRightCommand}" HotKey="Right">→</Button>
+            </StackPanel>
+        </StackPanel>
+
+    </Grid>
+
+</UserControl>
