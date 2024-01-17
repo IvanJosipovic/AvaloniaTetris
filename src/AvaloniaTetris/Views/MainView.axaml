@@ -63,7 +63,17 @@
 
         <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center">
             <TextBlock>Controls</TextBlock>
+            <TextBlock></TextBlock>
 
+            <TextBlock>Keyboard:</TextBlock>
+            <TextBlock>Left</TextBlock>
+            <TextBlock>Right</TextBlock>
+            <TextBlock>Up - Rotate</TextBlock>
+            <TextBlock>Down</TextBlock>
+
+            <TextBlock></TextBlock>
+
+            <TextBlock>Manual:</TextBlock>
             <StackPanel Orientation="Horizontal">
                 <Button Command="{Binding Game.MoveLeftCommand}" HotKey="Left">&lt;</Button>
                 <Button Command="{Binding Game.RotateCommand}" HotKey="Up">^</Button>
