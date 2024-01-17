@@ -13,30 +13,9 @@ on:
   merge_group:
 
 jobs:
-  build-test:
-    name: Build & Test
-    runs-on: self-hosted
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
-      env:
-        DOTNET_INSTALL_DIR: "./.dotnet"
-      with:
-        global-json-file: global.json
-
-    - name: Restore Workloads
-      run: dotnet workload restore
-
-    - name: .NET Build
-      run: dotnet build -c Release
-
   create-release:
-    if: ${{ github.event_name != 'pull_request' }}
     name: Create Release
-    runs-on: self-hosted
-    needs: build-test
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -48,7 +27,7 @@ jobs:
       with:
         global-json-file: global.json
 
-    - name: Restore Workloads
+    - name: Dotnet Restore Workloads
       run: dotnet workload restore
 
     - name: Dotnet Build
@@ -63,7 +42,7 @@ jobs:
       with:
         node-version: 'latest'
 
-    - name: Install NPX
+    - name: Install Netlify CLI
       run: npm install netlify-cli -g
 
     - name: Deploy
