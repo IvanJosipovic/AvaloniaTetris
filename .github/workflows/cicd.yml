@@ -63,8 +63,11 @@ jobs:
       with:
         node-version: 'latest'
 
+    - name: Install NPX
+      run: npm install netlify-cli -g
+
     - name: Deploy
-      run: npx netlify deploy ${{ (github.ref == 'refs/heads/master' && '--prod') || '' }} --json -d src/AvaloniaTetris.Browser/bin/Release/net8.0/browser-wasm/AppBundle/
+      run: netlify deploy ${{ (github.ref == 'refs/heads/master' && '--prod') || '' }} --json -d src/AvaloniaTetris.Browser/bin/Release/net8.0/browser-wasm/AppBundle/
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
