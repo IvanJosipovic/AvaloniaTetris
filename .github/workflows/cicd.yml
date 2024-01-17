@@ -37,48 +37,6 @@ jobs:
       working-directory: src/AvaloniaTetris.Browser
       run: dotnet publish -c Release
 
-    - name: Dotnet Publish win-x64
-      working-directory: src/AvaloniaTetris.Desktop
-      run: dotnet publish -c Release -r win-x64 /p:DebugType=None /p:DebugSymbols=false -o /dist
-
-    - name: Rename
-      run: mv /dist/AvaloniaTetris.Desktop.exe /dist/AvaloniaTetris.Desktop.win-x64.exe
-
-    - name: Dotnet Publish win-arm64
-      working-directory: src/AvaloniaTetris.Desktop
-      run: dotnet publish -c Release -r win-arm64 /p:DebugType=None /p:DebugSymbols=false -o /dist
-
-    - name: Rename
-      run: mv /dist/AvaloniaTetris.Desktop.exe /dist/AvaloniaTetris.Desktop.win-arm64.exe
-
-    - name: Dotnet Publish linux-x64
-      working-directory: src/AvaloniaTetris.Desktop
-      run: dotnet publish -c Release -r linux-x64 /p:DebugType=None /p:DebugSymbols=false -o /dist
-
-    - name: Rename
-      run: mv /dist/AvaloniaTetris.Desktop /dist/AvaloniaTetris.Desktop.linux-x64
-
-    - name: Dotnet Publish linux-arm64
-      working-directory: src/AvaloniaTetris.Desktop
-      run: dotnet publish -c Release -r linux-arm64 /p:DebugType=None /p:DebugSymbols=false -o /dist
-
-    - name: Rename
-      run: mv /dist/AvaloniaTetris.Desktop /dist/AvaloniaTetris.Desktop.linux-arm64
-
-    - name: Dotnet Publish osx-x64
-      working-directory: src/AvaloniaTetris.Desktop
-      run: dotnet publish -c Release -r osx-x64 /p:DebugType=None /p:DebugSymbols=false -o /dist
-
-    - name: Rename
-      run: mv /dist/AvaloniaTetris.Desktop /dist/AvaloniaTetris.Desktop.macos-x64
-
-    - name: Dotnet Publish osx-arm64
-      working-directory: src/AvaloniaTetris.Desktop
-      run: dotnet publish -c Release -r osx-arm64 /p:DebugType=None /p:DebugSymbols=false -o /dist
-
-    - name: Rename
-      run: mv /dist/AvaloniaTetris.Desktop /dist/AvaloniaTetris.Desktop.osx-arm64
-
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
