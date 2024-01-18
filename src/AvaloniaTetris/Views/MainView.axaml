@@ -33,6 +33,10 @@
                 <Label Content="Lines: "></Label>
                 <Label Content="{Binding Game.Lines}"></Label>
             </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Speed: "></Label>
+                <Label Content="{Binding Game.Speed}"></Label>
+            </StackPanel>
             <CheckBox IsChecked="{Binding Game.IsActive}" Content="Is Active" IsEnabled="False" />
             <Button Command="{Binding Game.RestartCommand}">Restart</Button>
             <Button Command="{Binding Game.PauseCommand}">Pause</Button>

@@ -23,16 +23,19 @@ public partial class Game : ObservableObject
     private GridPoint[,] _positions = new GridPoint[10,20];
 
     [ObservableProperty]
-    private int _level = 1;
+    private int _level;
 
     [ObservableProperty]
-    private int _score = 0;
+    private int _score;
 
     [ObservableProperty]
-    private int _lines = 0;
+    private int _lines;
 
     [ObservableProperty]
     private bool _isActive = true;
+
+    [ObservableProperty]
+    private int _speed;
 
     private readonly object _lock = new();
 
@@ -125,8 +128,11 @@ public partial class Game : ObservableObject
 
             if (removeRow)
             {
-                Score += 100;
                 Lines++;
+                Level = Lines / 10;
+                Score += 40 * (Level + 1);
+
+                SetGameSpeed();
 
                 for (int yy = y + 1; yy <= 19; yy++)
                 {
@@ -149,6 +155,29 @@ public partial class Game : ObservableObject
         }
     }
 
+    private void SetGameSpeed()
+    {
+        timer.Interval = Level switch
+        {
+            0 => TimeSpan.FromMilliseconds(800),
+            1 => TimeSpan.FromMilliseconds(716),
+            2 => TimeSpan.FromMilliseconds(633.33),
+            3 => TimeSpan.FromMilliseconds(550),
+            4 => TimeSpan.FromMilliseconds(466.66),
+            5 => TimeSpan.FromMilliseconds(383.33),
+            6 => TimeSpan.FromMilliseconds(300),
+            7 => TimeSpan.FromMilliseconds(216.66),
+            8 => TimeSpan.FromMilliseconds(133.33),
+            9 => TimeSpan.FromMilliseconds(100),
+            10 or 11 or 12 => TimeSpan.FromMilliseconds(85),
+            13 or 14 or 15 => TimeSpan.FromMilliseconds(65),
+            16 or 17 or 18 => TimeSpan.FromMilliseconds(50),
+            19 or 20 or 21 or 22 or 23 or 24 or 25 or 26 or 27 or 28 => TimeSpan.FromMilliseconds(33.3),
+            _ => TimeSpan.FromMilliseconds(16.67),
+        };
+        Speed = (int)timer.Interval.TotalMilliseconds;
+    }
+
     // Public
 
     public void Start()
@@ -158,10 +187,8 @@ public partial class Game : ObservableObject
             AddNewPiece();
             SetActivePiece();
 
-            timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(1)
-            };
+            timer = new DispatcherTimer();
+            SetGameSpeed();
             timer.Tick += Timer_Tick;
             timer.Start();
         }
