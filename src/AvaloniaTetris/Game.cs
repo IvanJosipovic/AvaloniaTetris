@@ -58,8 +58,16 @@ public partial class Game : ObservableObject
             1 => new Straight(),
             2 => new Square(),
             3 => new T(),
-            4 => new L(),
-            5 => new S(),
+            4 => randomPiece.Next(1,3) switch
+            {
+                1 => new L1(),
+                2=> new L2(),
+            } ,
+            5 => randomPiece.Next(1, 3) switch
+            {
+                1 => new S1(),
+                2 => new S2(),
+            },
             _ => throw new Exception(),
         };
         activePiece = newPiece;
@@ -86,7 +94,7 @@ public partial class Game : ObservableObject
         {
             shape = 2;
         }
-        else if (activePiece is S)
+        else if (activePiece is S1 or S2)
         {
             shape = 3;
         }
@@ -94,7 +102,7 @@ public partial class Game : ObservableObject
         {
             shape = 4;
         }
-        else if (activePiece is L)
+        else if (activePiece is L1 or L2)
         {
             shape = 5;
         }
