@@ -17,10 +17,21 @@ public partial class Game : ObservableObject
                 Positions[x, y] = new GridPoint();
             }
         }
+
+        for (int y = 0; y <= 1; y++)
+        {
+            for (int x = 0; x <= 3; x++)
+            {
+                NextPiecePositions[x, y] = new GridPoint();
+            }
+        }
     }
 
     [ObservableProperty]
     private GridPoint[,] _positions = new GridPoint[10,20];
+
+    [ObservableProperty]
+    private GridPoint[,] _nextPiecePositions = new GridPoint[4, 2];
 
     [ObservableProperty]
     private int _level;
@@ -43,6 +54,8 @@ public partial class Game : ObservableObject
 
     private Piece? activePiece;
 
+    private Piece? nextPiece;
+
     private void Timer_Tick(object? sender, EventArgs e)
     {
         MoveDown();
@@ -50,7 +63,7 @@ public partial class Game : ObservableObject
 
     readonly Random randomPiece = new();
 
-    private void AddNewPiece()
+    private Piece GetRandom()
     {
         // Pick random Piece
         Piece? newPiece = randomPiece.Next(1, 6) switch
@@ -58,11 +71,11 @@ public partial class Game : ObservableObject
             1 => new Straight(),
             2 => new Square(),
             3 => new T(),
-            4 => randomPiece.Next(1,3) switch
+            4 => randomPiece.Next(1, 3) switch
             {
                 1 => new L1(),
-                2=> new L2(),
-            } ,
+                2 => new L2(),
+            },
             5 => randomPiece.Next(1, 3) switch
             {
                 1 => new S1(),
@@ -70,7 +83,21 @@ public partial class Game : ObservableObject
             },
             _ => throw new Exception(),
         };
-        activePiece = newPiece;
+
+        return newPiece;
+    }
+
+    private void AddNewPiece()
+    {
+        if (nextPiece == null)
+        {
+            nextPiece = GetRandom();
+        }
+
+        activePiece = nextPiece;
+
+        nextPiece = GetRandom();
+        SetNextPiece();
     }
 
     private void ClearActivePiece()
@@ -112,6 +139,42 @@ public partial class Game : ObservableObject
             var pos = Positions[(int)point.X, (int)point.Y];
             pos.Type = shape;
             pos.IsActive = isActive;
+        }
+    }
+
+    private void SetNextPiece()
+    {
+        int shape = 0;
+        if (nextPiece is Straight)
+        {
+            shape = 1;
+        }
+        else if (nextPiece is Square)
+        {
+            shape = 2;
+        }
+        else if (nextPiece is S1 or S2)
+        {
+            shape = 3;
+        }
+        else if (nextPiece is T)
+        {
+            shape = 4;
+        }
+        else if (nextPiece is L1 or L2)
+        {
+            shape = 5;
+        }
+
+        foreach (var item in NextPiecePositions)
+        {
+            item.Type = 0;
+        }
+
+        foreach (var point in nextPiece.GetUsedCoords(-nextPiece.X, -nextPiece.Y))
+        {
+            var pos = NextPiecePositions[(int)point.X, (int)point.Y];
+            pos.Type = shape;
         }
     }
 

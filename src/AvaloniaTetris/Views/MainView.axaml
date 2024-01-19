@@ -84,6 +84,30 @@
                 <Button Command="{Binding Game.MoveDownCommand}" HotKey="Down">↓</Button>
                 <Button Command="{Binding Game.MoveRightCommand}" HotKey="Right">→</Button>
             </StackPanel>
+
+            <TextBlock></TextBlock>
+
+            <TextBlock>Next Piece</TextBlock>
+            <ItemsControl ItemsSource="{Binding OrderedNextPoints}" Padding="2" >
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Height="30"
+                                    Width="30"
+                                    BorderThickness="1"
+                                    BorderBrush="White"
+                                    CornerRadius="4"
+                                    BoxShadow="inset 1 1 1 1 DarkGray"
+                                    Background="{Binding Type, Converter={StaticResource intToColorConverter}}"
+                                >
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="2" Columns="4" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
         </StackPanel>
 
     </Grid>
