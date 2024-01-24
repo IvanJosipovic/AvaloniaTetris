@@ -1,39 +1,30 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
 namespace AvaloniaTetris.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    public IEnumerable<GridPoint> OrderedPoints => OrderPoints();
-    public IEnumerable<GridPoint> OrderedNextPoints => OrderNextPoints();
+    public IEnumerable<GridPoint> MainGridPoints => ReverseFlattenGrid(Game.Positions)  ;
+    public IEnumerable<GridPoint> NextPieceGridPints=> ReverseFlattenGrid(Game.NextPiecePositions) ;
 
+ 
     public Game Game { get; set; } = new Game();
 
     public MainViewModel()
     {
-        OrderPoints();
-
+         
         Game.Start();
     }
+ 
 
-    private IEnumerable<GridPoint> OrderPoints()
+    private IEnumerable<GridPoint> ReverseFlattenGrid(GridPoint[,]  grid)
     {
-        for (int y = 19; y >= 0; y--)
+        for (int y = grid.GetLength(1)-1; y >=0; y--)
+        //for (int y = 0; y <grid.GetLength(1); y++)
         {
-            for (int x = 0; x <= 9; x++)
+            for (int x = 0; x < grid.GetLength(0); x++)
             {
-                yield return Game.Positions[x, y];
-            }
-        }
-    }
-
-    private IEnumerable<GridPoint> OrderNextPoints()
-    {
-        for (int y = 1; y >= 0; y--)
-        {
-            for (int x = 0; x <= 3; x++)
-            {
-                yield return Game.NextPiecePositions[x, y];
+                yield return grid[x, y];
             }
         }
     }

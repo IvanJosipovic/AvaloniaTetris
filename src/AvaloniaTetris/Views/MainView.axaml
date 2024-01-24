@@ -43,23 +43,23 @@
         </StackPanel>
 
         <Viewbox Stretch="Uniform" Grid.Row="0" Grid.Column="1">
-            <ItemsControl ItemsSource="{Binding OrderedPoints}" Padding="2">
+            <ItemsControl ItemsSource="{Binding MainGridPoints}" Padding="2">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Height="50"
-                                Width="50"
+                        <Border Height="60"
+                                Width="60"
                                 BorderThickness="1"
                                 BorderBrush="White"
-                                CornerRadius="4"
+                                CornerRadius="2"
                                 BoxShadow="inset 1 1 1 1 DarkGray"
-                                Background="{Binding Type, Converter={StaticResource intToColorConverter}}"
+                                Background="{Binding IndexColor, Converter={StaticResource intToColorConverter}}"
                                 >
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <UniformGrid Rows="20" Columns="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <UniformGrid Rows="{Binding Game.MainGridVerticalDimension}" Columns="{Binding Game.MainGridHorizontalDimension}"  HorizontalAlignment="Left" VerticalAlignment="Top" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
@@ -77,6 +77,26 @@
 
             <TextBlock></TextBlock>
 
+             <ItemsControl ItemsSource="{Binding NextPieceGridPints}" Padding="2">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Height="20"
+                                Width="20"
+                                BorderThickness="0"
+                                BorderBrush="{Binding IndexColor, Converter={StaticResource intToColorConverter}}"
+                                 
+                                Background="{Binding IndexColor, Converter={StaticResource intToColorConverter}}"
+                                >
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="{Binding Game.NextPieceVerticalDimension}" Columns="{Binding Game.NextPieceGridHorizontalDimension}" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
             <TextBlock>Manual:</TextBlock>
             <StackPanel Orientation="Horizontal">
                 <Button Command="{Binding Game.MoveLeftCommand}" HotKey="Left">←</Button>
@@ -84,30 +104,6 @@
                 <Button Command="{Binding Game.MoveDownCommand}" HotKey="Down">↓</Button>
                 <Button Command="{Binding Game.MoveRightCommand}" HotKey="Right">→</Button>
             </StackPanel>
-
-            <TextBlock></TextBlock>
-
-            <TextBlock>Next Piece</TextBlock>
-            <ItemsControl ItemsSource="{Binding OrderedNextPoints}" Padding="2" >
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Height="30"
-                                    Width="30"
-                                    BorderThickness="1"
-                                    BorderBrush="White"
-                                    CornerRadius="4"
-                                    BoxShadow="inset 1 1 1 1 DarkGray"
-                                    Background="{Binding Type, Converter={StaticResource intToColorConverter}}"
-                                >
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="2" Columns="4" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
         </StackPanel>
 
     </Grid>

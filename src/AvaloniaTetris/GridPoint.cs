@@ -5,7 +5,7 @@ namespace AvaloniaTetris;
 public partial class GridPoint : ObservableObject
 {
     [ObservableProperty]
-    int _type;
+    int _indexColor;
 
     [ObservableProperty]
     bool _isActive;
