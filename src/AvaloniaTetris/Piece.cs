@@ -1,13 +1,36 @@
-﻿using Avalonia;
-using Avalonia.Media;
-using Avalonia.Media.Immutable;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
+
 
 namespace AvaloniaTetris;
 
+
+public struct Point
+{
+    public int X;
+    public int Y;
+
+    public Point(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+}
+public enum GridFill
+{
+    Blank,
+    AsStraight,
+    AsS1,
+    AsS2,
+    AsL1,
+    AsL2,
+    AsSquare,
+    AsT,
+    Blink
+}
 public abstract partial class Piece : ObservableObject
 {
+
     [ObservableProperty]
     int[,] _shape;
 
@@ -18,10 +41,17 @@ public abstract partial class Piece : ObservableObject
     int _y;
 
 
-    public int ColorIndex { get; protected set; }
-    public IImmutableSolidColorBrush Color { get; protected set; }
-     
-    public List<Point> GetUsedCoords(double xOffset = 0, double yOffset = 0, bool rotate = false)
+    public GridFill FillType { get; set; }
+
+
+    public Piece(int startX, int startY)
+    {
+        this.X = startX;
+        this.Y = startY;
+
+    }
+
+    public List<Point> GetUsedCoords(int xOffset = 0, int yOffset = 0, bool rotate = false)
     {
         List<Point> coords = [];
 
@@ -87,78 +117,73 @@ public abstract partial class Piece : ObservableObject
     {
         Shape = RotateMatrixCounterClockwise(Shape);
     }
-    public Piece(int startX,int startY)
-    {
-        this.X = startX;
-        this.Y = startY;
-    }
+
 }
 
 internal class Straight : Piece
 {
-    public Straight(int startX,int startY) : base(startX,startY)
+    public Straight(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 1, 1, 1, 1 } };
-        ColorIndex = 1;
-        Color = Brushes.Red;
+        FillType = GridFill.AsStraight;
     }
 }
 
 internal class Square : Piece
 {
-    public Square(int startX,int startY) : base(startX,startY)
+    public Square(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 1, 1 },
                              { 1, 1 }};
-                              ColorIndex = 2;
-          Color = Brushes.Blue;
+
+        FillType = GridFill.AsSquare;
     }
 }
 
 internal class T : Piece
 {
-    public T(int startX,int startY) : base(startX,startY)
+    public T(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 1, 1, 1 },
                              { 0, 1, 0 }};
-                              ColorIndex = 3;
-        Color = Brushes.Green;
+
+        FillType = GridFill.AsT;
     }
 }
 
 internal class L1 : Piece
 {
-    public L1(int startX,int startY) : base(startX,startY)
+    public L1(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 1, 1, 1 },
                              { 0, 0, 1 }};
-        ColorIndex = 4;
-        Color = Brushes.Cyan;
+        FillType = GridFill.AsL1;
+
     }
 }
 internal class L2 : Piece
 {
-    public L2(int startX,int startY) : base(startX,startY)
+    public L2(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 0, 0, 1 },
                              { 1, 1, 1 }};
-                              ColorIndex = 5;
-        Color = Brushes.Purple;
+
+        FillType = GridFill.AsL2;
     }
 }
 
 
 internal class S1 : Piece
 {
-    public S1(int startX,int startY) : base(startX,startY)
+    public S1(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,]
         {
             { 1, 1, 0 },
             { 0, 1, 1 }
         };
-         ColorIndex = 6;
-         Color = Brushes.Yellow;
+        FillType = GridFill.AsS1;
+
     }
 }
 
@@ -171,7 +196,8 @@ internal class S2 : Piece
             { 0, 1, 1 },
             { 1, 1, 0 }
         };
-        ColorIndex = 7;
-        Color = Brushes.BlanchedAlmond;
+        FillType = GridFill.AsS2;
+
     }
 }
+

@@ -6,31 +6,41 @@ using Avalonia.Media;
 
 namespace AvaloniaTetris;
 
-public class IntToColorConverter : IValueConverter
+public class GridColorConverter : IValueConverter
 {
-    public static readonly IntToColorConverter Instance = new();
+    public static readonly GridColorConverter Instance = new();
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is int val)
+        if (value is GridFill val)
         {
             switch (val)
             {
-                case 0:
+                case GridFill.Blank:
                     return Brushes.Black;
-                case 1:
+
+                case GridFill.AsStraight:
                     return Brushes.Red;
-                case 2:
+
+                case GridFill.AsSquare:
                     return Brushes.Blue;
-                case 3:
+
+                case GridFill.AsL1:
                     return Brushes.Green;
-                case 4:
+
+                case GridFill.AsL2:
                     return Brushes.Cyan;
-                case 5:
+
+                case GridFill.AsT:
                     return Brushes.Purple;
-                case 6:
+
+                case GridFill.AsS1:
                     return Brushes.Yellow;
-                case 7:
+
+                case GridFill.AsS2:
+                    return Brushes.PaleGoldenrod;
+
+                case GridFill.Blink:
                     return Brushes.BlanchedAlmond;
             }
         }

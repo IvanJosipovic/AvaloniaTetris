@@ -68,7 +68,7 @@ public partial class Game : ObservableObject
         MoveDown();
     }
 
-    readonly Random randomPiece = new(DateTime.Now.Millisecond);
+    readonly Random randomPiece = new();
 
     private Queue<Piece> Pieces = new Queue<Piece>();
 
@@ -77,15 +77,15 @@ public partial class Game : ObservableObject
         while (Pieces.Count < 2)
         {
             // Pick random Piece
-            Piece? newPiece = randomPiece.Next(1, 7) switch
+            Piece? newPiece = randomPiece.Next(0, 7) switch
             {
-                1 => new Straight(MainGridHorizontalDimension/2-2, MainGridVerticalDimension-1),
-                2 => new Square(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
-                3 => new T(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
-                4 => new L1(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
-                5 => new L2(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
-                6 => new S1(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
-                7 => new S2(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
+                0 => new Straight(MainGridHorizontalDimension / 2 - 2, MainGridVerticalDimension - 1),
+                1 => new Square(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                2 => new T(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                3 => new L1(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                4 => new L2(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                5 => new S2(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                6 => new S1(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
 
                 _ => throw new Exception(),
             };
@@ -99,18 +99,18 @@ public partial class Game : ObservableObject
         foreach (var point in activePiece.GetUsedCoords())
         {
             var pos = Positions[(int)point.X, (int)point.Y];
-            pos.IndexColor = 0;
+            pos.FillType = GridFill.Blank;
             pos.IsActive = false;
         }
     }
 
     private void SetActivePiece(bool isActive = true)
     {
-         
+
         foreach (var point in activePiece.GetUsedCoords())
         {
             var pos = Positions[(int)point.X, (int)point.Y];
-            pos.IndexColor = activePiece.ColorIndex;
+            pos.FillType = activePiece.FillType;
             pos.IsActive = isActive;
         }
         var nextPiece = Pieces.Peek();
@@ -118,17 +118,17 @@ public partial class Game : ObservableObject
         {
             for (int x = 0; x < NextPieceGridHorizontalDimension; x++)
             {
-                NextPiecePositions[x, y].IndexColor = 0;
+                NextPiecePositions[x, y].FillType = 0;
             }
         }
         foreach (var point in nextPiece.GetUsedCoords(-nextPiece.X, -nextPiece.Y))
         {
             var pos = NextPiecePositions[(int)point.X, (int)point.Y];
-            pos.IndexColor = nextPiece.ColorIndex;
+            pos.FillType = nextPiece.FillType;
         }
     }
 
-    
+
 
     private void RemoveFullRow()
     {
@@ -140,11 +140,11 @@ public partial class Game : ObservableObject
 
             while (removeRow)
             {
-                for (int x = 0; x <= MainGridHorizontalDimension; x++)
+                for (int x = 0; x < MainGridHorizontalDimension; x++)
                 {
                     var pos = Positions[x, y];
 
-                    if (pos.IndexColor == 0 && !pos.IsActive)
+                    if (pos.FillType == 0 && !pos.IsActive)
                     {
                         removeRow = false;
                         break;
@@ -153,9 +153,9 @@ public partial class Game : ObservableObject
 
                 if (removeRow)
                 {
-                    Lines++;
+                    Lines += 1;
                     Level = Lines / 10;
-                    Score += 40 * (Level + 1);
+                    Score += MainGridHorizontalDimension * (Level + 1);
 
                     SetGameSpeed();
 
@@ -169,7 +169,7 @@ public partial class Game : ObservableObject
 
                             if (!old.IsActive && !newOb.IsActive)
                             {
-                                old.IndexColor = newOb.IndexColor;
+                                old.FillType = newOb.FillType;
                                 old.IsActive = false;
                             }
                         }
@@ -237,7 +237,7 @@ public partial class Game : ObservableObject
             }
 
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].IndexColor > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].FillType != GridFill.Blank && !Positions[(int)pt.X, (int)pt.Y].IsActive))
             {
                 return;
             }
@@ -264,7 +264,7 @@ public partial class Game : ObservableObject
             }
 
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].IndexColor > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].FillType != GridFill.Blank && !Positions[(int)pt.X, (int)pt.Y].IsActive))
             {
                 return;
             }
@@ -286,14 +286,15 @@ public partial class Game : ObservableObject
             var coords = activePiece.GetUsedCoords(0, -1);
 
             // Check if we have reached the end or there is a conflict
-            if (!coords.Any(p => p.Y < 0) && !coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].IndexColor > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (!coords.Any(p => p.Y < 0) && !coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].FillType != GridFill.Blank && !Positions[(int)pt.X, (int)pt.Y].IsActive))
             {
                 ClearActivePiece();
                 activePiece.MoveDown();
                 SetActivePiece();
             }
             else
-            { int offSet = activePiece.Shape.GetLength(1) > 0 ? 2 : 1;
+            {
+                int offSet = activePiece.Shape.GetLength(1) > 0 ? 2 : 1;
                 // Check if piece failed to go to first row
                 // Means end game
                 if (activePiece.Y == MainGridVerticalDimension - offSet)
@@ -343,7 +344,7 @@ public partial class Game : ObservableObject
             }
 
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].IndexColor > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].FillType != GridFill.Blank && !Positions[(int)pt.X, (int)pt.Y].IsActive))
             {
                 return;
             }
@@ -380,12 +381,12 @@ public partial class Game : ObservableObject
 
         timer?.Start();
 
-        for (int y = 0; y <= MainGridVerticalDimension; y++)
+        for (int y = 0; y < MainGridVerticalDimension; y++)
         {
-            for (int x = 0; x <= MainGridHorizontalDimension; x++)
+            for (int x = 0; x < MainGridHorizontalDimension; x++)
             {
                 var pos = Positions[x, y];
-                pos.IndexColor = 0;
+                pos.FillType = 0;
                 pos.IsActive = false;
             }
         }

@@ -14,7 +14,7 @@
   </Design.DataContext>
 
     <UserControl.Resources>
-            <local:IntToColorConverter x:Key="intToColorConverter"/>
+            <local:GridColorConverter x:Key="GridColorConverter"/>
     </UserControl.Resources>
 
     <Grid ColumnDefinitions="*,*,*">
@@ -43,16 +43,16 @@
         </StackPanel>
 
         <Viewbox Stretch="Uniform" Grid.Row="0" Grid.Column="1">
-            <ItemsControl ItemsSource="{Binding MainGridPoints}" Padding="2">
+            <ItemsControl ItemsSource="{Binding MainGridPoints}" Padding="2" BorderThickness="2"  BorderBrush="White">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Height="60"
                                 Width="60"
                                 BorderThickness="1"
-                                BorderBrush="White"
+                                
                                 CornerRadius="2"
-                                BoxShadow="inset 1 1 1 1 DarkGray"
-                                Background="{Binding IndexColor, Converter={StaticResource intToColorConverter}}"
+                                
+                                Background="{Binding FillType, Converter={StaticResource GridColorConverter}}"
                                 >
                         </Border>
                     </DataTemplate>
@@ -76,16 +76,15 @@
             <TextBlock>Down</TextBlock>
 
             <TextBlock></TextBlock>
-
+            <TextBlock>Next Piece</TextBlock>
              <ItemsControl ItemsSource="{Binding NextPieceGridPints}" Padding="2">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Height="20"
-                                Width="20"
+                        <Border Height="25"
+                                Width="25"
                                 BorderThickness="0"
-                                BorderBrush="{Binding IndexColor, Converter={StaticResource intToColorConverter}}"
-                                 
-                                Background="{Binding IndexColor, Converter={StaticResource intToColorConverter}}"
+                                BorderBrush="{Binding FillType, Converter={StaticResource GridColorConverter}}"
+                                Background= "{Binding FillType, Converter={StaticResource GridColorConverter}}"
                                 >
                         </Border>
                     </DataTemplate>
