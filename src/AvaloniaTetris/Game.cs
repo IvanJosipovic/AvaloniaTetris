@@ -79,13 +79,13 @@ public partial class Game : ObservableObject
             // Pick random Piece
             Piece? newPiece = randomPiece.Next(1, 7) switch
             {
-                1 => new Straight(),
-                2 => new Square(),
-                3 => new T(),
-                4 => new L1(),
-                5 => new L2(),
-                6 => new S1(),
-                7 => new S2(),
+                1 => new Straight(MainGridHorizontalDimension/2-2, MainGridVerticalDimension-1),
+                2 => new Square(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
+                3 => new T(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
+                4 => new L1(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
+                5 => new L2(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
+                6 => new S1(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
+                7 => new S2(MainGridHorizontalDimension/2-1, MainGridVerticalDimension-2),
 
                 _ => throw new Exception(),
             };
@@ -106,12 +106,11 @@ public partial class Game : ObservableObject
 
     private void SetActivePiece(bool isActive = true)
     {
-        int colorIndex = GetColorIndex(activePiece);
-
+         
         foreach (var point in activePiece.GetUsedCoords())
         {
             var pos = Positions[(int)point.X, (int)point.Y];
-            pos.IndexColor = colorIndex;
+            pos.IndexColor = activePiece.ColorIndex;
             pos.IsActive = isActive;
         }
         var nextPiece = Pieces.Peek();
@@ -125,44 +124,11 @@ public partial class Game : ObservableObject
         foreach (var point in nextPiece.GetUsedCoords(-nextPiece.X, -nextPiece.Y))
         {
             var pos = NextPiecePositions[(int)point.X, (int)point.Y];
-            pos.IndexColor = GetColorIndex(nextPiece);
+            pos.IndexColor = nextPiece.ColorIndex;
         }
     }
 
-    private int GetColorIndex(Piece piece)
-    {
-        int colorIndex = 0;
-        if (piece is Straight)
-        {
-            colorIndex = 1;
-        }
-        else if (piece is Square)
-        {
-            colorIndex = 2;
-        }
-        else if (piece is S1)
-        {
-            colorIndex = 3;
-        }
-        else if (piece is S2)
-        {
-            colorIndex = 4;
-        }
-        else if (piece is T)
-        {
-            colorIndex = 5;
-        }
-        else if (piece is L1)
-        {
-            colorIndex = 6;
-        }
-        else if (piece is L2)
-        {
-            colorIndex = 7;
-        }
-
-        return colorIndex;
-    }
+    
 
     private void RemoveFullRow()
     {
@@ -327,10 +293,10 @@ public partial class Game : ObservableObject
                 SetActivePiece();
             }
             else
-            {
+            { int offSet = activePiece.Shape.GetLength(1) > 0 ? 2 : 1;
                 // Check if piece failed to go to first row
                 // Means end game
-                if (activePiece.Y == MainGridVerticalDimension - 1)
+                if (activePiece.Y == MainGridVerticalDimension - offSet)
                 {
                     IsActive = false;
                     timer?.Stop();
