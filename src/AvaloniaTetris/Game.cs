@@ -57,6 +57,9 @@ public partial class Game : ObservableObject
     [ObservableProperty]
     private int _speed;
 
+    [ObservableProperty]
+    private bool _showGrid;
+
     private readonly object _lock = new();
 
     private DispatcherTimer? timer;

@@ -54,3 +54,21 @@ public class GridColorConverter : IValueConverter
         throw new NotSupportedException();
     }
 }
+
+public class BoolToThicknessConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is bool val)
+        {
+            return val ? new Avalonia.Thickness(1.0) : new Avalonia.Thickness(0.0);
+        }
+        else
+            return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}

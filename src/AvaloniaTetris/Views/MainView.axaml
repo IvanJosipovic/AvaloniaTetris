@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:AvaloniaTetris"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="AvaloniaTetris.Views.MainView"
+             x:CompileBindings="False"
              x:DataType="vm:MainViewModel">
   <Design.DataContext>
     <!-- This only sets the DataContext for the previewer in an IDE,
@@ -15,10 +16,12 @@
 
     <UserControl.Resources>
             <local:GridColorConverter x:Key="GridColorConverter"/>
+            <local:BoolToThicknessConverter x:Key="BoolToThicknessConverter"/>
     </UserControl.Resources>
 
     <Grid ColumnDefinitions="*,*,*">
         <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" >
+              <CheckBox IsChecked="{Binding Game.ShowGrid, Mode=TwoWay}" Content="Show Grid"  />
             <TextBlock>Stats</TextBlock>
 
             <StackPanel Orientation="Horizontal">
@@ -48,9 +51,11 @@
                     <DataTemplate>
                         <Border Height="60"
                                 Width="60"
-                                BorderThickness="1"
                                 
-                                CornerRadius="2"
+                                BorderThickness="{Binding $parent[1].((vm:MainViewModel)DataContext).Game.ShowGrid, Converter={StaticResource BoolToThicknessConverter}}"
+                                BorderBrush="White"
+                                CornerRadius="4"
+ 
                                 
                                 Background="{Binding FillType, Converter={StaticResource GridColorConverter}}"
                                 >
