@@ -1,7 +1,8 @@
-﻿using Avalonia.Data.Converters;
-using Avalonia.Data;
-using System;
+﻿using System;
 using System.Globalization;
+
+using Avalonia.Data;
+using Avalonia.Data.Converters;
 using Avalonia.Media;
 
 namespace AvaloniaTetris;

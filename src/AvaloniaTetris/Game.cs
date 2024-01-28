@@ -1,9 +1,11 @@
-﻿using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using Avalonia.Threading;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace AvaloniaTetris;
 
@@ -13,7 +15,7 @@ public partial class Game : ObservableObject
     public static int NextPieceGridHorizontalDimension { get; set; } = 4;
     public static int NextPieceVerticalDimension { get; set; } = 2;
 
-    public static int MainGridHorizontalDimension { get; set; } = 14;
+    public static int MainGridHorizontalDimension { get; set; } = 12;
     public static int MainGridVerticalDimension { get; set; } = 30;
     public Game()
     {
@@ -60,35 +62,43 @@ public partial class Game : ObservableObject
     [ObservableProperty]
     private bool _showGrid;
 
+
+
     private readonly object _lock = new();
 
     private DispatcherTimer? timer;
 
     private Piece? activePiece;
 
+    List<int> rowsToRemove = new List<int>();
+    
+    int blinkStep = 0;
 
- 
+    private const int maxBlinks = 5;
+
+    readonly Random randomPieceGenerator = new();
+
+    private Queue<Piece> pieces = new Queue<Piece>();
+
+
+
+
     private void Timer_Tick(object? sender, EventArgs e)
     {
-        if (RowsToRemove.Count>0)
-        {
+        if (rowsToRemove.Count > 0)
             DoBlinkRemovingLines();
-        }
         else
             MoveDown();
     }
 
 
-    readonly Random randomPieceGenerator = new();
-
-    private Queue<Piece> Pieces = new Queue<Piece>();
 
     private void AddNewPiece()
     {
-        while (Pieces.Count < 2)
+        while (pieces.Count < 2)
         {
             int p = 0;
-            //p = randomPieceGenerator.Next(0, 7); // Pick random Piece
+            p = randomPieceGenerator.Next(0, 7); // Pick random Piece, comment for fast test with one piece
 
             Piece? newPiece = p switch
             {
@@ -102,34 +112,34 @@ public partial class Game : ObservableObject
 
                 _ => throw new Exception(),
             };
-            Pieces.Enqueue(newPiece);
+            pieces.Enqueue(newPiece);
         }
-        activePiece = Pieces.Dequeue();
+        activePiece = pieces.Dequeue();
     }
 
     private void ClearActivePiece()
     {
- 
+
         foreach (var point in activePiece?.GetUsedCoords())
         {
             var pos = Positions[point.X, point.Y];
             pos.FillType = GridFill.Blank;
             pos.IsActive = false;
         }
- 
+
     }
 
     private void SetActivePiece(bool isActive = true)
     {
- 
+
         foreach (var point in activePiece?.GetUsedCoords())
         {
             var pos = Positions[point.X, point.Y];
             pos.FillType = activePiece.FillType;
             pos.IsActive = isActive;
         }
- 
-        var nextPiece = Pieces.Peek();
+
+        var nextPiece = pieces.Peek();
         for (int y = 0; y < NextPieceVerticalDimension; y++)
         {
             for (int x = 0; x < NextPieceGridHorizontalDimension; x++)
@@ -145,13 +155,10 @@ public partial class Game : ObservableObject
     }
 
 
-    int RemoveStep = 0;
-    List<int> RowsToRemove = new List<int>();
-    private const int MaxBlinks = 5;
 
     private void CheckRowsToRemove()
     {
-        RowsToRemove.Clear();
+        rowsToRemove.Clear();
         for (int y = 0; y < MainGridVerticalDimension; y++)
         {
             bool hasToBeRemoved = true;
@@ -162,21 +169,21 @@ public partial class Game : ObservableObject
             }
             if (hasToBeRemoved)
             {
-                RowsToRemove.Add(y);
+                rowsToRemove.Add(y);
             }
         }
-        if (RowsToRemove.Count > 0) 
+        if (rowsToRemove.Count > 0)
             timer.Interval = TimeSpan.FromMilliseconds(60); // Time of Blinking
     }
 
-    int BlinkStep = 0;
+
     private void DoBlinkRemovingLines()
     {
-        if (BlinkStep < MaxBlinks)
+        if (blinkStep < maxBlinks)
         {
 
-            var fc = BlinkStep % 2 == 0 ? GridFill.BlinkOn : GridFill.BlinkOff;
-            foreach (var row in RowsToRemove)
+            var fc = blinkStep % 2 == 0 ? GridFill.BlinkOn : GridFill.BlinkOff;
+            foreach (var row in rowsToRemove)
             {
                 for (int x = 0; x < MainGridHorizontalDimension; x++)
                 {
@@ -185,14 +192,14 @@ public partial class Game : ObservableObject
 
                 }
             }
-            BlinkStep++;
+            blinkStep++;
 
         }
         else
         {
-           
-           
-            foreach (var row in RowsToRemove.OrderDescending())
+
+            //Remove rows and push down others
+            foreach (var row in rowsToRemove.OrderDescending())
             {
                 for (int yy = row + 1; yy < MainGridVerticalDimension; yy++)
                 {
@@ -210,22 +217,20 @@ public partial class Game : ObservableObject
                     }
                 }
             }
-            Lines += RowsToRemove.Count();
+            Lines += rowsToRemove.Count();
             Level = Lines / 10;
             Score += MainGridHorizontalDimension * (Level + 1);
             SetGameSpeed();
-            RowsToRemove.Clear();
-            BlinkStep = 0;
+            rowsToRemove.Clear();
+            blinkStep = 0;
 
         }
     }
 
 
-    
-
     private void SetGameSpeed()
     {
-      
+
 
         timer.Interval = Level switch
         {
@@ -245,7 +250,7 @@ public partial class Game : ObservableObject
             19 or 20 or 21 or 22 or 23 or 24 or 25 or 26 or 27 or 28 => TimeSpan.FromMilliseconds(33.3),
             _ => TimeSpan.FromMilliseconds(16.67),
         };
- 
+
         Speed = (int)timer.Interval.TotalMilliseconds;
     }
 
@@ -277,13 +282,13 @@ public partial class Game : ObservableObject
             var coords = activePiece?.GetUsedCoords(-1, 0);
 
             // Check for out of bounds
-             if (coords.Any(point => point.X < 0))
+            if (coords.Any(point => point.X < 0))
             {
                 return;
             }
- 
+
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].FillType != GridFill.Blank && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[pt.X, pt.Y].FillType != GridFill.Blank && !Positions[pt.X, pt.Y].IsActive))
             {
                 return;
             }
@@ -304,13 +309,13 @@ public partial class Game : ObservableObject
             var coords = activePiece?.GetUsedCoords(1, 0);
 
             // Check for out of bounds
-             if (coords.Any(point => point.X >= MainGridHorizontalDimension))
+            if (coords.Any(point => point.X >= MainGridHorizontalDimension))
             {
                 return;
             }
- 
+
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].FillType != GridFill.Blank && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[pt.X, pt.Y].FillType != GridFill.Blank && !Positions[pt.X, pt.Y].IsActive))
             {
                 return;
             }
@@ -332,7 +337,7 @@ public partial class Game : ObservableObject
             var coords = activePiece?.GetUsedCoords(0, -1);
 
             // Check if we have reached the end or there is a conflict
-            if (!coords.Any(p => p.Y < 0) && !coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].FillType != GridFill.Blank && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (!coords.Any(p => p.Y < 0) && !coords.Any(pt => Positions[pt.X, pt.Y].FillType != GridFill.Blank && !Positions[pt.X, pt.Y].IsActive))
             {
                 ClearActivePiece();
                 activePiece?.MoveDown();
@@ -356,7 +361,7 @@ public partial class Game : ObservableObject
                 SetActivePiece();
                 CheckRowsToRemove();
             }
- 
+
         }
     }
 
@@ -370,11 +375,11 @@ public partial class Game : ObservableObject
             var coords = activePiece?.GetUsedCoords(0, 0, true);
 
             // Check for out of bounds
-             if (coords.Any(point => point.X < 0))
+            if (coords.Any(point => point.X < 0))
             {
                 return;
             }
- 
+
             if (coords.Any(point => point.X > MainGridHorizontalDimension - 1))
             {
                 return;
@@ -391,7 +396,7 @@ public partial class Game : ObservableObject
             }
 
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].FillType != GridFill.Blank && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[pt.X, pt.Y].FillType != GridFill.Blank && !Positions[pt.X, pt.Y].IsActive))
             {
                 return;
             }
@@ -420,7 +425,7 @@ public partial class Game : ObservableObject
     [RelayCommand]
     void Restart()
     {
-        Level = 1;
+        Level = 0;
         Score = 0;
         Lines = 0;
 
