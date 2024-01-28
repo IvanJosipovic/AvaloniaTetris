@@ -26,7 +26,8 @@ public enum GridFill
     AsL2,
     AsSquare,
     AsT,
-    Blink
+    BlinkOn,
+    BlinkOff
 }
 public abstract partial class Piece : ObservableObject
 {
@@ -44,7 +45,9 @@ public abstract partial class Piece : ObservableObject
     public GridFill FillType { get; set; }
 
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public Piece(int startX, int startY)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
         this.X = startX;
         this.Y = startY;

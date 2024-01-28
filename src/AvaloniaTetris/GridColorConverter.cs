@@ -40,8 +40,10 @@ public class GridColorConverter : IValueConverter
                 case GridFill.AsS2:
                     return Brushes.PaleGoldenrod;
 
-                case GridFill.Blink:
+                case GridFill.BlinkOn:
                     return Brushes.BlanchedAlmond;
+                case GridFill.BlinkOff:
+                    return Brushes.DarkGray;
             }
         }
 
