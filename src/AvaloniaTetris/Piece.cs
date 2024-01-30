@@ -1,11 +1,38 @@
-﻿using Avalonia;
+﻿using System.Collections.Generic;
+
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.Generic;
+
 
 namespace AvaloniaTetris;
 
+
+public struct Point
+{
+    public int X;
+    public int Y;
+
+    public Point(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+}
+public enum GridFill
+{
+    Blank,
+    AsStraight,
+    AsS1,
+    AsS2,
+    AsL1,
+    AsL2,
+    AsSquare,
+    AsT,
+    BlinkOn,
+    BlinkOff
+}
 public abstract partial class Piece : ObservableObject
 {
+
     [ObservableProperty]
     int[,] _shape;
 
@@ -15,7 +42,20 @@ public abstract partial class Piece : ObservableObject
     [ObservableProperty]
     int _y;
 
-    public List<Point> GetUsedCoords(double xOffset = 0, double yOffset = 0, bool rotate = false)
+
+    public GridFill FillType { get; set; }
+
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public Piece(int startX, int startY)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    {
+        this.X = startX;
+        this.Y = startY;
+
+    }
+
+    public List<Point> GetUsedCoords(int xOffset = 0, int yOffset = 0, bool rotate = false)
     {
         List<Point> coords = [];
 
@@ -81,86 +121,87 @@ public abstract partial class Piece : ObservableObject
     {
         Shape = RotateMatrixCounterClockwise(Shape);
     }
+
 }
 
 internal class Straight : Piece
 {
-    public Straight()
+    public Straight(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 1, 1, 1, 1 } };
-        X = 3;
-        Y = 19;
+        FillType = GridFill.AsStraight;
     }
 }
 
 internal class Square : Piece
 {
-    public Square()
+    public Square(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 1, 1 },
                              { 1, 1 }};
-        X = 4;
-        Y = 18;
+
+        FillType = GridFill.AsSquare;
     }
 }
 
 internal class T : Piece
 {
-    public T()
+    public T(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 1, 1, 1 },
                              { 0, 1, 0 }};
-        X = 3;
-        Y = 18;
+
+        FillType = GridFill.AsT;
     }
 }
 
 internal class L1 : Piece
 {
-    public L1()
+    public L1(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 1, 1, 1 },
                              { 0, 0, 1 }};
-        X = 4;
-        Y = 18;
+        FillType = GridFill.AsL1;
+
     }
 }
 internal class L2 : Piece
 {
-    public L2()
+    public L2(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,] { { 0, 0, 1 },
                              { 1, 1, 1 }};
-        X = 4;
-        Y = 18;
+
+        FillType = GridFill.AsL2;
     }
 }
 
 
 internal class S1 : Piece
 {
-    public S1()
+    public S1(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,]
         {
             { 1, 1, 0 },
             { 0, 1, 1 }
         };
-        X = 4;
-        Y = 18;
+        FillType = GridFill.AsS1;
+
     }
 }
 
 internal class S2 : Piece
 {
-    public S2()
+    public S2(int startX, int startY) : base(startX, startY)
     {
         Shape = new int[,]
         {
             { 0, 1, 1 },
             { 1, 1, 0 }
         };
-        X = 4;
-        Y = 18;
+        FillType = GridFill.AsS2;
+
     }
 }
+
