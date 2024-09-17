@@ -4,9 +4,13 @@ namespace AvaloniaTetris;
 
 public partial class GridPoint : ObservableObject
 {
-    [ObservableProperty]
-    int _type;
+
 
     [ObservableProperty]
     bool _isActive;
+
+    [ObservableProperty]
+    GridFill _fillType;
+
+
 }

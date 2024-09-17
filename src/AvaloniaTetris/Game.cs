@@ -1,26 +1,36 @@
-﻿using Avalonia.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Avalonia.Threading;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Linq;
 
 namespace AvaloniaTetris;
 
 public partial class Game : ObservableObject
 {
+
+    public static int NextPieceGridHorizontalDimension { get; set; } = 4;
+    public static int NextPieceVerticalDimension { get; set; } = 2;
+
+    public static int MainGridHorizontalDimension { get; set; } = 12;
+    public static int MainGridVerticalDimension { get; set; } = 30;
     public Game()
     {
-        for (int y = 0; y <= 19; y++)
+
+        for (int y = 0; y < MainGridVerticalDimension; y++)
         {
-            for (int x = 0; x <= 9; x++)
+            for (int x = 0; x < MainGridHorizontalDimension; x++)
             {
                 Positions[x, y] = new GridPoint();
             }
         }
 
-        for (int y = 0; y <= 1; y++)
+        for (int y = 0; y < NextPieceVerticalDimension; y++)
         {
-            for (int x = 0; x <= 3; x++)
+            for (int x = 0; x < NextPieceGridHorizontalDimension; x++)
             {
                 NextPiecePositions[x, y] = new GridPoint();
             }
@@ -28,10 +38,11 @@ public partial class Game : ObservableObject
     }
 
     [ObservableProperty]
-    private GridPoint[,] _positions = new GridPoint[10,20];
+    private GridPoint[,] _positions = new GridPoint[MainGridHorizontalDimension, MainGridVerticalDimension];
 
     [ObservableProperty]
-    private GridPoint[,] _nextPiecePositions = new GridPoint[4, 2];
+    private GridPoint[,] _nextPiecePositions = new GridPoint[NextPieceGridHorizontalDimension, NextPieceVerticalDimension];
+
 
     [ObservableProperty]
     private int _level;
@@ -48,166 +59,151 @@ public partial class Game : ObservableObject
     [ObservableProperty]
     private int _speed;
 
+    [ObservableProperty]
+    private bool _showGrid;
+
+
+
     private readonly object _lock = new();
 
     private DispatcherTimer? timer;
 
     private Piece? activePiece;
 
-    private Piece? nextPiece;
+    List<int> rowsToRemove = new List<int>();
+    
+    int blinkStep = 0;
+
+    private const int maxBlinks = 5;
+
+    readonly Random randomPieceGenerator = new();
+
+    private Queue<Piece> pieces = new Queue<Piece>();
+
+
+
 
     private void Timer_Tick(object? sender, EventArgs e)
     {
-        MoveDown();
+        if (rowsToRemove.Count > 0)
+            DoBlinkRemovingLines();
+        else
+            MoveDown();
     }
 
-    readonly Random randomPiece = new();
 
-    private Piece GetRandom()
-    {
-        // Pick random Piece
-        Piece? newPiece = randomPiece.Next(1, 6) switch
-        {
-            1 => new Straight(),
-            2 => new Square(),
-            3 => new T(),
-            4 => randomPiece.Next(1, 3) switch
-            {
-                1 => new L1(),
-                2 => new L2(),
-            },
-            5 => randomPiece.Next(1, 3) switch
-            {
-                1 => new S1(),
-                2 => new S2(),
-            },
-            _ => throw new Exception(),
-        };
-
-        return newPiece;
-    }
 
     private void AddNewPiece()
     {
-        if (nextPiece == null)
+        while (pieces.Count < 2)
         {
-            nextPiece = GetRandom();
+            int p = 0;
+            p = randomPieceGenerator.Next(0, 7); // Pick random Piece, comment for fast test with one piece
+
+            Piece? newPiece = p switch
+            {
+                0 => new Straight(MainGridHorizontalDimension / 2 - 2, MainGridVerticalDimension - 1),
+                1 => new Square(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                2 => new T(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                3 => new L1(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                4 => new L2(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                5 => new S2(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+                6 => new S1(MainGridHorizontalDimension / 2 - 1, MainGridVerticalDimension - 2),
+
+                _ => throw new Exception(),
+            };
+            pieces.Enqueue(newPiece);
         }
-
-        activePiece = nextPiece;
-
-        nextPiece = GetRandom();
-        SetNextPiece();
+        activePiece = pieces.Dequeue();
     }
 
     private void ClearActivePiece()
     {
-        foreach (var point in activePiece.GetUsedCoords())
+
+        foreach (var point in activePiece?.GetUsedCoords())
         {
-            var pos = Positions[(int)point.X, (int)point.Y];
-            pos.Type = 0;
+            var pos = Positions[point.X, point.Y];
+            pos.FillType = GridFill.Blank;
             pos.IsActive = false;
         }
+
     }
 
     private void SetActivePiece(bool isActive = true)
     {
-        int shape = 0;
-        if (activePiece is Straight)
-        {
-            shape = 1;
-        }
-        else if (activePiece is Square)
-        {
-            shape = 2;
-        }
-        else if (activePiece is S1 or S2)
-        {
-            shape = 3;
-        }
-        else if (activePiece is T)
-        {
-            shape = 4;
-        }
-        else if (activePiece is L1 or L2)
-        {
-            shape = 5;
-        }
 
-        foreach (var point in activePiece.GetUsedCoords())
+        foreach (var point in activePiece?.GetUsedCoords())
         {
-            var pos = Positions[(int)point.X, (int)point.Y];
-            pos.Type = shape;
+            var pos = Positions[point.X, point.Y];
+            pos.FillType = activePiece.FillType;
             pos.IsActive = isActive;
         }
-    }
 
-    private void SetNextPiece()
-    {
-        int shape = 0;
-        if (nextPiece is Straight)
+        var nextPiece = pieces.Peek();
+        for (int y = 0; y < NextPieceVerticalDimension; y++)
         {
-            shape = 1;
+            for (int x = 0; x < NextPieceGridHorizontalDimension; x++)
+            {
+                NextPiecePositions[x, y].FillType = 0;
+            }
         }
-        else if (nextPiece is Square)
-        {
-            shape = 2;
-        }
-        else if (nextPiece is S1 or S2)
-        {
-            shape = 3;
-        }
-        else if (nextPiece is T)
-        {
-            shape = 4;
-        }
-        else if (nextPiece is L1 or L2)
-        {
-            shape = 5;
-        }
-
-        foreach (var item in NextPiecePositions)
-        {
-            item.Type = 0;
-        }
-
         foreach (var point in nextPiece.GetUsedCoords(-nextPiece.X, -nextPiece.Y))
         {
-            var pos = NextPiecePositions[(int)point.X, (int)point.Y];
-            pos.Type = shape;
+            var pos = NextPiecePositions[point.X, point.Y];
+            pos.FillType = nextPiece.FillType;
         }
     }
 
-    private void RemoveFullRow()
-    {
-        //Check if a row needs to be removed
-        for (int y = 0; y <= 19; y++)
-        {
-            Top:
-            bool removeRow = true;
 
-            for (int x = 0; x <= 9; x++)
+
+    private void CheckRowsToRemove()
+    {
+        rowsToRemove.Clear();
+        for (int y = 0; y < MainGridVerticalDimension; y++)
+        {
+            bool hasToBeRemoved = true;
+            for (int x = 0; x < MainGridHorizontalDimension; x++)
             {
                 var pos = Positions[x, y];
+                hasToBeRemoved &= !((pos.FillType == GridFill.Blank) && !pos.IsActive);
+            }
+            if (hasToBeRemoved)
+            {
+                rowsToRemove.Add(y);
+            }
+        }
+        if (rowsToRemove.Count > 0)
+            timer.Interval = TimeSpan.FromMilliseconds(60); // Time of Blinking
+    }
 
-                if (pos.Type == 0 && !pos.IsActive)
+
+    private void DoBlinkRemovingLines()
+    {
+        if (blinkStep < maxBlinks)
+        {
+
+            var fc = blinkStep % 2 == 0 ? GridFill.BlinkOn : GridFill.BlinkOff;
+            foreach (var row in rowsToRemove)
+            {
+                for (int x = 0; x < MainGridHorizontalDimension; x++)
                 {
-                    removeRow = false;
-                    break;
+                    Positions[x, row].FillType = fc;
+
+
                 }
             }
+            blinkStep++;
 
-            if (removeRow)
+        }
+        else
+        {
+
+            //Remove rows and push down others
+            foreach (var row in rowsToRemove.OrderDescending())
             {
-                Lines++;
-                Level = Lines / 10;
-                Score += 40 * (Level + 1);
-
-                SetGameSpeed();
-
-                for (int yy = y + 1; yy <= 19; yy++)
+                for (int yy = row + 1; yy < MainGridVerticalDimension; yy++)
                 {
-                    for (int x = 0; x <= 9; x++)
+                    for (int x = 0; x < MainGridHorizontalDimension; x++)
                     {
                         var old = Positions[x, yy - 1];
 
@@ -215,19 +211,27 @@ public partial class Game : ObservableObject
 
                         if (!old.IsActive && !newOb.IsActive)
                         {
-                            old.Type = newOb.Type;
+                            old.FillType = newOb.FillType;
                             old.IsActive = false;
                         }
                     }
                 }
-
-                goto Top;
             }
+            Lines += rowsToRemove.Count();
+            Level = Lines / 10;
+            Score += MainGridHorizontalDimension * (Level + 1);
+            SetGameSpeed();
+            rowsToRemove.Clear();
+            blinkStep = 0;
+
         }
     }
 
+
     private void SetGameSpeed()
     {
+
+
         timer.Interval = Level switch
         {
             0 => TimeSpan.FromMilliseconds(800),
@@ -246,6 +250,7 @@ public partial class Game : ObservableObject
             19 or 20 or 21 or 22 or 23 or 24 or 25 or 26 or 27 or 28 => TimeSpan.FromMilliseconds(33.3),
             _ => TimeSpan.FromMilliseconds(16.67),
         };
+
         Speed = (int)timer.Interval.TotalMilliseconds;
     }
 
@@ -283,13 +288,13 @@ public partial class Game : ObservableObject
             }
 
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[pt.X, pt.Y].FillType != GridFill.Blank && !Positions[pt.X, pt.Y].IsActive))
             {
                 return;
             }
 
             ClearActivePiece();
-            activePiece.MoveLeft();
+            activePiece?.MoveLeft();
             SetActivePiece();
         }
     }
@@ -304,19 +309,19 @@ public partial class Game : ObservableObject
             var coords = activePiece?.GetUsedCoords(1, 0);
 
             // Check for out of bounds
-            if (coords.Any(point => point.X > 9))
+            if (coords.Any(point => point.X >= MainGridHorizontalDimension))
             {
                 return;
             }
 
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[pt.X, pt.Y].FillType != GridFill.Blank && !Positions[pt.X, pt.Y].IsActive))
             {
                 return;
             }
 
             ClearActivePiece();
-            activePiece.MoveRight();
+            activePiece?.MoveRight();
             SetActivePiece();
         }
     }
@@ -329,20 +334,21 @@ public partial class Game : ObservableObject
         lock (_lock)
         {
             // Get coords for one row down
-            var coords = activePiece.GetUsedCoords(0, -1);
+            var coords = activePiece?.GetUsedCoords(0, -1);
 
             // Check if we have reached the end or there is a conflict
-            if (!coords.Any(p => p.Y < 0) && !coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (!coords.Any(p => p.Y < 0) && !coords.Any(pt => Positions[pt.X, pt.Y].FillType != GridFill.Blank && !Positions[pt.X, pt.Y].IsActive))
             {
                 ClearActivePiece();
-                activePiece.MoveDown();
+                activePiece?.MoveDown();
                 SetActivePiece();
             }
             else
             {
+                int offSet = activePiece?.Shape.GetLength(1) > 0 ? 2 : 1;
                 // Check if piece failed to go to first row
                 // Means end game
-                if (activePiece.Y == 19)
+                if (activePiece?.Y == MainGridVerticalDimension - offSet)
                 {
                     IsActive = false;
                     timer?.Stop();
@@ -353,8 +359,9 @@ public partial class Game : ObservableObject
 
                 AddNewPiece();
                 SetActivePiece();
-                RemoveFullRow();
+                CheckRowsToRemove();
             }
+
         }
     }
 
@@ -373,12 +380,12 @@ public partial class Game : ObservableObject
                 return;
             }
 
-            if (coords.Any(point => point.X > 9))
+            if (coords.Any(point => point.X > MainGridHorizontalDimension - 1))
             {
                 return;
             }
 
-            if (coords.Any(point => point.Y > 19))
+            if (coords.Any(point => point.Y > MainGridVerticalDimension - 1))
             {
                 return;
             }
@@ -389,13 +396,13 @@ public partial class Game : ObservableObject
             }
 
             // Check if piece has a conflict
-            if (coords.Any(pt => Positions[(int)pt.X, (int)pt.Y].Type > 0 && !Positions[(int)pt.X, (int)pt.Y].IsActive))
+            if (coords.Any(pt => Positions[pt.X, pt.Y].FillType != GridFill.Blank && !Positions[pt.X, pt.Y].IsActive))
             {
                 return;
             }
 
             ClearActivePiece();
-            activePiece.Rotate();
+            activePiece?.Rotate();
             SetActivePiece();
         }
     }
@@ -418,7 +425,7 @@ public partial class Game : ObservableObject
     [RelayCommand]
     void Restart()
     {
-        Level = 1;
+        Level = 0;
         Score = 0;
         Lines = 0;
 
@@ -426,12 +433,12 @@ public partial class Game : ObservableObject
 
         timer?.Start();
 
-        for (int y = 0; y <= 19; y++)
+        for (int y = 0; y < MainGridVerticalDimension; y++)
         {
-            for (int x = 0; x <= 9; x++)
+            for (int x = 0; x < MainGridHorizontalDimension; x++)
             {
                 var pos = Positions[x, y];
-                pos.Type = 0;
+                pos.FillType = 0;
                 pos.IsActive = false;
             }
         }
